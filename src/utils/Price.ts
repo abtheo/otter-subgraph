@@ -1,4 +1,8 @@
-import { UNI_CLAM_MAI_PAIR, USDC_MATIC_AGGREGATOR } from './Constants'
+import {
+  UNI_CLAM_MAI_PAIR,
+  UNI_MAI_USDC_PAIR,
+  USDC_MATIC_AGGREGATOR,
+} from './Constants'
 import { Address, BigDecimal, BigInt, log } from '@graphprotocol/graph-ts'
 import { UniswapV2Pair } from '../../generated/OtterTreasury/UniswapV2Pair'
 import { AggregatorV3InterfaceABI } from '../../generated/OtterTreasury/AggregatorV3InterfaceABI'
@@ -19,19 +23,16 @@ export function getCLAMUSDRate(): BigDecimal {
   let pair = UniswapV2Pair.bind(Address.fromString(UNI_CLAM_MAI_PAIR))
 
   let reserves = pair.getReserves()
-  let reserve0 = reserves.value1.toBigDecimal()
-  let reserve1 = reserves.value0.toBigDecimal()
-  log.debug('pair reserve0 {}, reserve1 {}', [
-    reserve0.toString(),
-    reserve1.toString(),
-  ])
+  let clam = reserves.value1.toBigDecimal()
+  let mai = reserves.value0.toBigDecimal()
+  log.debug('pair reserve0 {}, reserve1 {}', [clam.toString(), mai.toString()])
 
-  if (reserve0.equals(BigDecimal.zero())) {
-    log.debug('getCLAMUSDRate div {}', [reserve0.toString()])
+  if (clam.equals(BigDecimal.zero())) {
+    log.debug('getCLAMUSDRate div {}', [clam.toString()])
     return BigDecimal.zero()
   }
 
-  let clamRate = reserve1.div(reserve0).div(BIG_DECIMAL_1E9)
+  let clamRate = mai.div(clam).div(BIG_DECIMAL_1E9)
   log.debug('CLAM rate {}', [clamRate.toString()])
 
   return clamRate

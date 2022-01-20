@@ -5,6 +5,7 @@ import { OtterStaking } from '../../generated/OtterTreasury/OtterStaking'
 import { ClamCirculatingSupply } from '../../generated/OtterTreasury/ClamCirculatingSupply'
 import { ERC20 } from '../../generated/OtterTreasury/ERC20'
 import { UniswapV2Pair } from '../../generated/OtterTreasury/UniswapV2Pair'
+import { OtterQiDAOInvestment } from '../../generated/OtterTreasury/OtterQiDAOInvestment'
 
 import { ProtocolMetric, Transaction } from '../../generated/schema'
 import {
@@ -22,6 +23,10 @@ import {
   UNI_CLAM_FRAX_PAIR_BLOCK,
   UNI_CLAM_WMATIC_PAIR,
   UNI_CLAM_WMATIC_PAIR_BLOCK,
+  UNI_MAI_USDC_PAIR,
+  UNI_MAI_USDC_PAIR_BLOCK,
+  UNI_MAI_USDC_QI_INVESTMENT_PAIR,
+  UNI_MAI_USDC_QI_INVESTMENT_PAIR_BLOCK,
 } from './Constants'
 import { dayFromTimestamp } from './Dates'
 import { toDecimal } from './Decimals'
@@ -47,6 +52,10 @@ export function loadOrCreateProtocolMetric(timestamp: BigInt): ProtocolMetric {
     protocolMetric.marketCap = BigDecimal.fromString('0')
     protocolMetric.totalValueLocked = BigDecimal.fromString('0')
     protocolMetric.treasuryRiskFreeValue = BigDecimal.fromString('0')
+    protocolMetric.treasuryMaiUsdcRiskFreeValue = BigDecimal.fromString('0')
+    protocolMetric.treasuryMaiUsdcQiInvestmentRiskFreeValue = BigDecimal.fromString(
+      '0',
+    )
     protocolMetric.treasuryMarketValue = BigDecimal.fromString('0')
     protocolMetric.nextEpochRebase = BigDecimal.fromString('0')
     protocolMetric.nextDistributedClam = BigDecimal.fromString('0')
@@ -109,6 +118,61 @@ function getSClamSupply(transaction: Transaction): BigDecimal {
 
   log.debug('sCLAM Supply {}', [sclam_supply.toString()])
   return sclam_supply
+}
+
+function getMaiUsdcValue(): BigDecimal {
+  let pair = UniswapV2Pair.bind(Address.fromString(UNI_MAI_USDC_PAIR))
+
+  let reserves = pair.getReserves()
+  let usdc = toDecimal(reserves.value0, 6)
+  let mai = toDecimal(reserves.value1, 18)
+  log.info('pair usdc {}, mai {}', [mai.toString(), usdc.toString()])
+
+  let balance = pair
+    .balanceOf(Address.fromString(TREASURY_ADDRESS))
+    .toBigDecimal()
+  let total = pair.totalSupply().toBigDecimal()
+  log.info('MAI/USDC LP balance {}, total {}', [
+    balance.toString(),
+    total.toString(),
+  ])
+
+  let value = usdc
+    .plus(mai)
+    .times(balance)
+    .div(total)
+  log.info('MAI/USDC value {}', [value.toString()])
+  return value
+}
+
+function getMaiUsdcQiInvestmentValue(): BigDecimal {
+  let pair = OtterQiDAOInvestment.bind(
+    Address.fromString(UNI_MAI_USDC_QI_INVESTMENT_PAIR),
+  )
+
+  let reserves = pair.getReserves()
+  let usdc = toDecimal(reserves.value0, 6)
+  let mai = toDecimal(reserves.value1, 18)
+  log.info('qi investment pair usdc {}, mai {}', [
+    mai.toString(),
+    usdc.toString(),
+  ])
+
+  let balance = pair
+    .balanceOf(Address.fromString(TREASURY_ADDRESS))
+    .toBigDecimal()
+  let total = pair.totalSupply().toBigDecimal()
+  log.info('qi investment MAI/USDC LP balance {}, total {}', [
+    balance.toString(),
+    total.toString(),
+  ])
+
+  let value = usdc
+    .plus(mai)
+    .times(balance)
+    .div(total)
+  log.info('qi investment MAI/USDC value {}', [value.toString()])
+  return value
 }
 
 function getMV_RFV(transaction: Transaction): BigDecimal[] {
@@ -190,8 +254,24 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
     }
   }
 
+  let maiUsdcValueDecimal = BigDecimal.fromString('0')
+  if (transaction.blockNumber.ge(BigInt.fromString(UNI_MAI_USDC_PAIR_BLOCK))) {
+    maiUsdcValueDecimal = getMaiUsdcValue()
+  }
+
+  let maiUsdcQiInvestmentValueDecimal = BigDecimal.fromString('0')
+  if (
+    transaction.blockNumber.gt(
+      BigInt.fromString(UNI_MAI_USDC_QI_INVESTMENT_PAIR_BLOCK),
+    )
+  ) {
+    maiUsdcQiInvestmentValueDecimal = getMaiUsdcQiInvestmentValue()
+  }
+
   let stableValue = maiBalance.plus(fraxBalance)
   let stableValueDecimal = toDecimal(stableValue, 18)
+    .plus(maiUsdcValueDecimal)
+    .plus(maiUsdcQiInvestmentValueDecimal)
 
   let lpValue = clamMai_value.plus(clamFrax_value).plus(clamWmatic_value)
   let rfvLpValue = clamMai_rfv.plus(clamFrax_rfv).plus(clamWmatic_rfv)
@@ -203,6 +283,10 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
   log.debug('Treasury RFV {}', [rfv.toString()])
   log.debug('Treasury MAI value {}', [toDecimal(maiBalance, 18).toString()])
   log.debug('Treasury FRAX value {}', [toDecimal(fraxBalance, 18).toString()])
+  log.debug('Treasury MAI/USDC value {}', [maiUsdcValueDecimal.toString()])
+  log.debug('Treasury Qi Investment MAI/USDC value {}', [
+    maiUsdcQiInvestmentValueDecimal.toString(),
+  ])
   log.debug('Treasury WMATIC value {}', [wmatic_value.toString()])
   log.debug('Treasury CLAM-MAI RFV {}', [clamMai_rfv.toString()])
   log.debug('Treasury CLAM-FRAX RFV {}', [clamFrax_rfv.toString()])
@@ -210,6 +294,8 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
   return [
     mv,
     rfv,
+    maiUsdcValueDecimal,
+    maiUsdcQiInvestmentValueDecimal,
     // treasuryMaiRiskFreeValue = MAI RFV * MAI + aMAI
     clamMai_rfv.plus(toDecimal(maiBalance, 18)),
     // treasuryMaiMarketValue = MAI LP * MAI + aMAI
@@ -341,15 +427,17 @@ export function updateProtocolMetrics(transaction: Transaction): void {
   let mv_rfv = getMV_RFV(transaction)
   pm.treasuryMarketValue = mv_rfv[0]
   pm.treasuryRiskFreeValue = mv_rfv[1]
-  pm.treasuryMaiRiskFreeValue = mv_rfv[2]
-  pm.treasuryMaiMarketValue = mv_rfv[3]
-  pm.treasuryFraxRiskFreeValue = mv_rfv[4]
-  pm.treasuryFraxMarketValue = mv_rfv[5]
-  pm.treasuryWmaticRiskFreeValue = mv_rfv[6]
-  pm.treasuryWmaticMarketValue = mv_rfv[7]
-  pm.treasuryClamMaiPOL = mv_rfv[8]
-  pm.treasuryClamFraxPOL = mv_rfv[9]
-  pm.treasuryClamWmaticPOL = mv_rfv[10]
+  pm.treasuryMaiUsdcRiskFreeValue = mv_rfv[2]
+  pm.treasuryMaiUsdcQiInvestmentRiskFreeValue = mv_rfv[3]
+  pm.treasuryMaiRiskFreeValue = mv_rfv[4]
+  pm.treasuryMaiMarketValue = mv_rfv[5]
+  pm.treasuryFraxRiskFreeValue = mv_rfv[6]
+  pm.treasuryFraxMarketValue = mv_rfv[7]
+  pm.treasuryWmaticRiskFreeValue = mv_rfv[8]
+  pm.treasuryWmaticMarketValue = mv_rfv[9]
+  pm.treasuryClamMaiPOL = mv_rfv[10]
+  pm.treasuryClamFraxPOL = mv_rfv[11]
+  pm.treasuryClamWmaticPOL = mv_rfv[12]
 
   // Rebase rewards, APY, rebase
   pm.nextDistributedClam = getNextCLAMRebase(transaction)

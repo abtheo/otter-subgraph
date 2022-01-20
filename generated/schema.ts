@@ -1482,6 +1482,14 @@ export class ProtocolMetric extends Entity {
     this.set("nextEpochRebase", Value.fromBigDecimal(BigDecimal.zero()));
     this.set("nextDistributedClam", Value.fromBigDecimal(BigDecimal.zero()));
     this.set(
+      "treasuryMaiUsdcRiskFreeValue",
+      Value.fromBigDecimal(BigDecimal.zero())
+    );
+    this.set(
+      "treasuryMaiUsdcQiInvestmentRiskFreeValue",
+      Value.fromBigDecimal(BigDecimal.zero())
+    );
+    this.set(
       "treasuryMaiRiskFreeValue",
       Value.fromBigDecimal(BigDecimal.zero())
     );
@@ -1631,6 +1639,27 @@ export class ProtocolMetric extends Entity {
 
   set nextDistributedClam(value: BigDecimal) {
     this.set("nextDistributedClam", Value.fromBigDecimal(value));
+  }
+
+  get treasuryMaiUsdcRiskFreeValue(): BigDecimal {
+    let value = this.get("treasuryMaiUsdcRiskFreeValue");
+    return value!.toBigDecimal();
+  }
+
+  set treasuryMaiUsdcRiskFreeValue(value: BigDecimal) {
+    this.set("treasuryMaiUsdcRiskFreeValue", Value.fromBigDecimal(value));
+  }
+
+  get treasuryMaiUsdcQiInvestmentRiskFreeValue(): BigDecimal {
+    let value = this.get("treasuryMaiUsdcQiInvestmentRiskFreeValue");
+    return value!.toBigDecimal();
+  }
+
+  set treasuryMaiUsdcQiInvestmentRiskFreeValue(value: BigDecimal) {
+    this.set(
+      "treasuryMaiUsdcQiInvestmentRiskFreeValue",
+      Value.fromBigDecimal(value)
+    );
   }
 
   get treasuryMaiRiskFreeValue(): BigDecimal {
