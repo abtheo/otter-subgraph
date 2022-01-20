@@ -41,6 +41,12 @@ dataSources:
           file: ./abis/OtterQiDAOInvestment.json
         - name: AggregatorV3InterfaceABI
           file: ./abis/AggregatorV3InterfaceABI.json
+        - name: OtterLake
+          file: ./abis/OtterLake.json
+        - name: PearlNote
+          file: ./abis/PearlNote.json
+        - name: OtterPearlERC20
+          file: ./abis/OtterPearlERC20.json
         # --------------------
       eventHandlers:
         - event: Approval(indexed address,indexed address,uint256)
@@ -101,6 +107,12 @@ dataSources:
           file: ./abis/OtterQiDAOInvestment.json
         - name: AggregatorV3InterfaceABI
           file: ./abis/AggregatorV3InterfaceABI.json
+        - name: OtterLake
+          file: ./abis/OtterLake.json
+        - name: PearlNote
+          file: ./abis/PearlNote.json
+        - name: OtterPearlERC20
+          file: ./abis/OtterPearlERC20.json
         # --------------------
       eventHandlers:
         - event: ChangeActivated(indexed uint8,address,bool)

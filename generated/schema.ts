@@ -1511,6 +1511,10 @@ export class ProtocolMetric extends Entity {
       Value.fromBigDecimal(BigDecimal.zero())
     );
     this.set("currentAPY", Value.fromBigDecimal(BigDecimal.zero()));
+    this.set("safeHandAPY", Value.fromBigDecimal(BigDecimal.zero()));
+    this.set("furryHandAPY", Value.fromBigDecimal(BigDecimal.zero()));
+    this.set("stoneHandAPY", Value.fromBigDecimal(BigDecimal.zero()));
+    this.set("diamondHandAPY", Value.fromBigDecimal(BigDecimal.zero()));
     this.set("treasuryClamMaiPOL", Value.fromBigDecimal(BigDecimal.zero()));
     this.set("treasuryClamFraxPOL", Value.fromBigDecimal(BigDecimal.zero()));
     this.set("treasuryClamWmaticPOL", Value.fromBigDecimal(BigDecimal.zero()));
@@ -1723,6 +1727,42 @@ export class ProtocolMetric extends Entity {
 
   set currentAPY(value: BigDecimal) {
     this.set("currentAPY", Value.fromBigDecimal(value));
+  }
+
+  get safeHandAPY(): BigDecimal {
+    let value = this.get("safeHandAPY");
+    return value!.toBigDecimal();
+  }
+
+  set safeHandAPY(value: BigDecimal) {
+    this.set("safeHandAPY", Value.fromBigDecimal(value));
+  }
+
+  get furryHandAPY(): BigDecimal {
+    let value = this.get("furryHandAPY");
+    return value!.toBigDecimal();
+  }
+
+  set furryHandAPY(value: BigDecimal) {
+    this.set("furryHandAPY", Value.fromBigDecimal(value));
+  }
+
+  get stoneHandAPY(): BigDecimal {
+    let value = this.get("stoneHandAPY");
+    return value!.toBigDecimal();
+  }
+
+  set stoneHandAPY(value: BigDecimal) {
+    this.set("stoneHandAPY", Value.fromBigDecimal(value));
+  }
+
+  get diamondHandAPY(): BigDecimal {
+    let value = this.get("diamondHandAPY");
+    return value!.toBigDecimal();
+  }
+
+  set diamondHandAPY(value: BigDecimal) {
+    this.set("diamondHandAPY", Value.fromBigDecimal(value));
   }
 
   get runway2dot5k(): BigDecimal | null {

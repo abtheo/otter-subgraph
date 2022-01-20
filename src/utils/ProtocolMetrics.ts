@@ -6,6 +6,9 @@ import { ClamCirculatingSupply } from '../../generated/OtterTreasury/ClamCircula
 import { ERC20 } from '../../generated/OtterTreasury/ERC20'
 import { UniswapV2Pair } from '../../generated/OtterTreasury/UniswapV2Pair'
 import { OtterQiDAOInvestment } from '../../generated/OtterTreasury/OtterQiDAOInvestment'
+import { OtterLake } from '../../generated/OtterTreasury/OtterLake'
+import { PearlNote } from '../../generated/OtterTreasury/PearlNote'
+import { OtterPearlERC20 } from '../../generated/OtterTreasury/OtterPearlERC20'
 
 import { ProtocolMetric, Transaction } from '../../generated/schema'
 import {
@@ -16,6 +19,7 @@ import {
   CLAM_ERC20_CONTRACT,
   SCLAM_ERC20_CONTRACT,
   MATIC_ERC20_CONTRACT,
+  PEARL_ERC20_CONTRACT,
   STAKING_CONTRACT,
   TREASURY_ADDRESS,
   UNI_CLAM_MAI_PAIR,
@@ -27,6 +31,8 @@ import {
   UNI_MAI_USDC_PAIR_BLOCK,
   UNI_MAI_USDC_QI_INVESTMENT_PAIR,
   UNI_MAI_USDC_QI_INVESTMENT_PAIR_BLOCK,
+  OTTER_LAKE_ADDRESS,
+  PEARL_CHEST_BLOCK,
 } from './Constants'
 import { dayFromTimestamp } from './Dates'
 import { toDecimal } from './Decimals'
@@ -60,6 +66,10 @@ export function loadOrCreateProtocolMetric(timestamp: BigInt): ProtocolMetric {
     protocolMetric.nextEpochRebase = BigDecimal.fromString('0')
     protocolMetric.nextDistributedClam = BigDecimal.fromString('0')
     protocolMetric.currentAPY = BigDecimal.fromString('0')
+    protocolMetric.safeHandAPY = BigDecimal.fromString('0')
+    protocolMetric.furryHandAPY = BigDecimal.fromString('0')
+    protocolMetric.stoneHandAPY = BigDecimal.fromString('0')
+    protocolMetric.diamondHandAPY = BigDecimal.fromString('0')
     protocolMetric.treasuryMaiRiskFreeValue = BigDecimal.fromString('0')
     protocolMetric.treasuryMaiMarketValue = BigDecimal.fromString('0')
     protocolMetric.treasuryFraxRiskFreeValue = BigDecimal.fromString('0')
@@ -126,13 +136,13 @@ function getMaiUsdcValue(): BigDecimal {
   let reserves = pair.getReserves()
   let usdc = toDecimal(reserves.value0, 6)
   let mai = toDecimal(reserves.value1, 18)
-  log.info('pair usdc {}, mai {}', [mai.toString(), usdc.toString()])
+  log.debug('pair usdc {}, mai {}', [mai.toString(), usdc.toString()])
 
   let balance = pair
     .balanceOf(Address.fromString(TREASURY_ADDRESS))
     .toBigDecimal()
   let total = pair.totalSupply().toBigDecimal()
-  log.info('MAI/USDC LP balance {}, total {}', [
+  log.debug('MAI/USDC LP balance {}, total {}', [
     balance.toString(),
     total.toString(),
   ])
@@ -141,7 +151,7 @@ function getMaiUsdcValue(): BigDecimal {
     .plus(mai)
     .times(balance)
     .div(total)
-  log.info('MAI/USDC value {}', [value.toString()])
+  log.debug('MAI/USDC value {}', [value.toString()])
   return value
 }
 
@@ -153,7 +163,7 @@ function getMaiUsdcQiInvestmentValue(): BigDecimal {
   let reserves = pair.getReserves()
   let usdc = toDecimal(reserves.value0, 6)
   let mai = toDecimal(reserves.value1, 18)
-  log.info('qi investment pair usdc {}, mai {}', [
+  log.debug('qi investment pair usdc {}, mai {}', [
     mai.toString(),
     usdc.toString(),
   ])
@@ -162,7 +172,7 @@ function getMaiUsdcQiInvestmentValue(): BigDecimal {
     .balanceOf(Address.fromString(TREASURY_ADDRESS))
     .toBigDecimal()
   let total = pair.totalSupply().toBigDecimal()
-  log.info('qi investment MAI/USDC LP balance {}, total {}', [
+  log.debug('qi investment MAI/USDC LP balance {}, total {}', [
     balance.toString(),
     total.toString(),
   ])
@@ -171,7 +181,7 @@ function getMaiUsdcQiInvestmentValue(): BigDecimal {
     .plus(mai)
     .times(balance)
     .div(total)
-  log.info('qi investment MAI/USDC value {}', [value.toString()])
+  log.debug('qi investment MAI/USDC value {}', [value.toString()])
   return value
 }
 
@@ -331,7 +341,7 @@ function getAPY_Rebase(
     .times(BigDecimal.fromString('100'))
 
   let nextEpochRebase_number = Number.parseFloat(nextEpochRebase.toString())
-  let currentAPY = Math.pow(nextEpochRebase_number / 100 + 1, 365 * 3 - 1) * 100
+  let currentAPY = Math.pow(nextEpochRebase_number / 100 + 1, 1095) * 100
 
   let currentAPYdecimal = BigDecimal.fromString(currentAPY.toString())
 
@@ -339,6 +349,129 @@ function getAPY_Rebase(
   log.debug('current_apy total {}', [currentAPYdecimal.toString()])
 
   return [currentAPYdecimal, nextEpochRebase]
+}
+
+function getAPY_PearlChest(nextEpochRebase: BigDecimal): BigDecimal[] {
+  let lake = OtterLake.bind(Address.fromString(OTTER_LAKE_ADDRESS))
+  let pearl = OtterPearlERC20.bind(Address.fromString(PEARL_ERC20_CONTRACT))
+  let termsCount = lake.termsCount().toI32()
+  log.debug('pearl chest termsCount {}', [termsCount.toString()])
+  let rebaseRate = Number.parseFloat(nextEpochRebase.toString()) / 100
+  log.debug('pearl chest rebaseRate {}', [rebaseRate.toString()])
+  let epoch = lake.epochs(lake.epoch())
+  let totalNextReward = Number.parseFloat(
+    toDecimal(epoch.value4, 18).toString(), // reward
+  )
+  log.debug('pearl chest totalNextReward {}', [totalNextReward.toString()])
+  let totalBoostPoint = 0.0
+
+  let safeBoostPoint = 0.0
+  let safePearlBalance = 0.0
+  let furryBoostPoint = 0.0
+  let furryPearlBalance = 0.0
+  let stoneBoostPoint = 0.0
+  let stonePearlBalance = 0.0
+  let diamondBoostPoint = 0.0
+  let diamondPearlBalance = 0.0
+
+  for (let i = 0; i < termsCount; i++) {
+    let termAddress = lake.termAddresses(BigInt.fromI32(i))
+    let term = lake.terms(termAddress)
+    let pearlBalance = Number.parseFloat(
+      toDecimal(pearl.balanceOf(term.value0), 18).toString(),
+    ) // note
+    let boostPoint = (pearlBalance * term.value3) / 100 // multiplier
+    log.debug(
+      'pearl chest terms i = {}, boostPoint = {}, lockPeriod = {}, pearlBalance = {}',
+      [
+        i.toString(),
+        boostPoint.toString(),
+        term.value2.toString(),
+        pearlBalance.toString(),
+      ],
+    )
+
+    totalBoostPoint += boostPoint
+    if (term.value2.equals(BigInt.fromI32(42))) {
+      // lock days = 14 -> safe hand
+      safeBoostPoint += boostPoint
+      safePearlBalance += pearlBalance
+    }
+    if (term.value2.equals(BigInt.fromI32(84))) {
+      // lock days = 28 -> furry hand
+      furryBoostPoint += boostPoint
+      furryPearlBalance += pearlBalance
+    }
+    if (term.value2.equals(BigInt.fromI32(270))) {
+      // lock days = 90 -> stone hand
+      stoneBoostPoint += boostPoint
+      stonePearlBalance += pearlBalance
+    }
+    if (term.value2.equals(BigInt.fromI32(540))) {
+      // lock days = 189 -> diamond hand
+      diamondBoostPoint += boostPoint
+      diamondPearlBalance += pearlBalance
+    }
+  }
+  log.debug('pearl chest totalBoostPoint = {}', [totalBoostPoint.toString()])
+  log.debug('pearl chest safeBoostPoint = {}, safePearlBalance = {}', [
+    safeBoostPoint.toString(),
+    safePearlBalance.toString(),
+  ])
+  let safeHandAPY =
+    Math.pow(
+      1 +
+        (safeBoostPoint / totalBoostPoint) *
+          (totalNextReward / safePearlBalance) +
+        rebaseRate,
+      1095,
+    ) * 100
+  log.debug('pearl chest safeHandAPY = {}', [safeHandAPY.toString()])
+  log.debug('pearl chest furryBoostPoint = {}, furryPearlBalance = {}', [
+    furryBoostPoint.toString(),
+    furryPearlBalance.toString(),
+  ])
+  let furryHandAPY =
+    Math.pow(
+      1 +
+        (furryBoostPoint / totalBoostPoint) *
+          (totalNextReward / furryPearlBalance) +
+        rebaseRate,
+      1095,
+    ) * 100
+  log.debug('pearl chest furryHandAPY = {}', [furryHandAPY.toString()])
+  log.debug('pearl chest stoneBoostPoint = {}, stonePearlBalance = {}', [
+    stoneBoostPoint.toString(),
+    stonePearlBalance.toString(),
+  ])
+  let stoneHandAPY =
+    Math.pow(
+      1 +
+        (stoneBoostPoint / totalBoostPoint) *
+          (totalNextReward / stonePearlBalance) +
+        rebaseRate,
+      1095,
+    ) * 100
+  log.debug('pearl chest stoneHandAPY = {}', [stoneHandAPY.toString()])
+  log.debug('pearl chest diamonBoostPoint = {}, diamondPearlBalance = {}', [
+    diamondBoostPoint.toString(),
+    diamondPearlBalance.toString(),
+  ])
+  let diamondHandAPY =
+    Math.pow(
+      1 +
+        (diamondBoostPoint / totalBoostPoint) *
+          (totalNextReward / diamondPearlBalance) +
+        rebaseRate,
+      1095,
+    ) * 100
+  log.debug('pearl chest diamondHandAPY = {}', [stoneHandAPY.toString()])
+  return [
+    BigDecimal.fromString(safeHandAPY.toString()),
+    BigDecimal.fromString(furryHandAPY.toString()),
+    BigDecimal.fromString(stoneHandAPY.toString()),
+    BigDecimal.fromString(diamondHandAPY.toString()),
+  ]
 }
 
 function getRunway(
@@ -447,6 +580,13 @@ export function updateProtocolMetrics(transaction: Transaction): void {
   )
   pm.currentAPY = apy_rebase[0]
   pm.nextEpochRebase = apy_rebase[1]
+  if (transaction.blockNumber.gt(BigInt.fromString(PEARL_CHEST_BLOCK))) {
+    let chestAPYs = getAPY_PearlChest(pm.nextEpochRebase)
+    pm.safeHandAPY = chestAPYs[0]
+    pm.furryHandAPY = chestAPYs[1]
+    pm.stoneHandAPY = chestAPYs[2]
+    pm.diamondHandAPY = chestAPYs[3]
+  }
 
   //Runway
   let runways = getRunway(
