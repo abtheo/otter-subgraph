@@ -20,6 +20,7 @@ import {
   SCLAM_ERC20_CONTRACT,
   MATIC_ERC20_CONTRACT,
   PEARL_ERC20_CONTRACT,
+  QI_ERC20_CONTRACT,
   STAKING_CONTRACT,
   TREASURY_ADDRESS,
   UNI_CLAM_MAI_PAIR,
@@ -31,6 +32,8 @@ import {
   UNI_MAI_USDC_PAIR_BLOCK,
   UNI_MAI_USDC_QI_INVESTMENT_PAIR,
   UNI_MAI_USDC_QI_INVESTMENT_PAIR_BLOCK,
+  UNI_QI_WMATIC_PAIR,
+  UNI_QI_WMATIC_PAIR_BLOCK,
   OTTER_LAKE_ADDRESS,
   PEARL_CHEST_BLOCK,
 } from './Constants'
@@ -76,6 +79,7 @@ export function loadOrCreateProtocolMetric(timestamp: BigInt): ProtocolMetric {
     protocolMetric.treasuryFraxMarketValue = BigDecimal.fromString('0')
     protocolMetric.treasuryWmaticRiskFreeValue = BigDecimal.fromString('0')
     protocolMetric.treasuryWmaticMarketValue = BigDecimal.fromString('0')
+    protocolMetric.treasuryQiMarketValue = BigDecimal.fromString('0')
     protocolMetric.treasuryClamMaiPOL = BigDecimal.fromString('0')
     protocolMetric.treasuryClamFraxPOL = BigDecimal.fromString('0')
     protocolMetric.treasuryClamWmaticPOL = BigDecimal.fromString('0')
@@ -185,6 +189,30 @@ function getMaiUsdcQiInvestmentValue(): BigDecimal {
   return value
 }
 
+export function getQiMarketValue(): BigDecimal {
+  let lp = UniswapV2Pair.bind(Address.fromString(UNI_QI_WMATIC_PAIR))
+  let wmatic = toDecimal(lp.getReserves().value0, 18)
+  let qi = toDecimal(lp.getReserves().value1, 18)
+  let wmaticPerQi = wmatic.div(qi)
+  let usdPerQi = wmaticPerQi.times(getWMATICUSDRate())
+  log.info('wmatic = {}, qi = {}, 1 qi = {} wmatic = {} USD', [
+    wmatic.toString(),
+    qi.toString(),
+    wmaticPerQi.toString(),
+    usdPerQi.toString(),
+  ])
+
+  let qiERC20 = ERC20.bind(Address.fromString(QI_ERC20_CONTRACT))
+  let qiBalance = toDecimal(
+    qiERC20.balanceOf(Address.fromString(TREASURY_ADDRESS)),
+    18,
+  )
+  log.info('qi balance of treasury = {}', [qiBalance.toString()])
+  let marketValue = qiBalance.times(usdPerQi)
+  log.info('qi marketValue = {}', [marketValue.toString()])
+  return marketValue
+}
+
 function getMV_RFV(transaction: Transaction): BigDecimal[] {
   let maiERC20 = ERC20.bind(Address.fromString(MAI_ERC20_CONTRACT))
   let fraxERC20 = ERC20.bind(Address.fromString(FRAX_ERC20_CONTRACT))
@@ -237,7 +265,6 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
     }
   }
 
-  //OHMETH
   let clamWmatic = BigInt.fromI32(0)
   let clamWmatic_value = BigDecimal.fromString('0')
   let clamWmatic_rfv = BigDecimal.fromString('0')
@@ -264,6 +291,11 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
     }
   }
 
+  let qiMarketValue = BigDecimal.fromString('0')
+  if (transaction.blockNumber.gt(BigInt.fromString(UNI_QI_WMATIC_PAIR_BLOCK))) {
+    qiMarketValue = getQiMarketValue()
+  }
+
   let maiUsdcValueDecimal = BigDecimal.fromString('0')
   if (transaction.blockNumber.ge(BigInt.fromString(UNI_MAI_USDC_PAIR_BLOCK))) {
     maiUsdcValueDecimal = getMaiUsdcValue()
@@ -286,7 +318,10 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
   let lpValue = clamMai_value.plus(clamFrax_value).plus(clamWmatic_value)
   let rfvLpValue = clamMai_rfv.plus(clamFrax_rfv).plus(clamWmatic_rfv)
 
-  let mv = stableValueDecimal.plus(lpValue).plus(wmatic_value)
+  let mv = stableValueDecimal
+    .plus(lpValue)
+    .plus(wmatic_value)
+    .plus(qiMarketValue)
   let rfv = stableValueDecimal.plus(rfvLpValue)
 
   log.debug('Treasury Market Value {}', [mv.toString()])
@@ -300,6 +335,7 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
   log.debug('Treasury WMATIC value {}', [wmatic_value.toString()])
   log.debug('Treasury CLAM-MAI RFV {}', [clamMai_rfv.toString()])
   log.debug('Treasury CLAM-FRAX RFV {}', [clamFrax_rfv.toString()])
+  log.debug('Treasury Qi Market value {}', [qiMarketValue.toString()])
 
   return [
     mv,
@@ -316,6 +352,7 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
     clamFrax_value.plus(toDecimal(fraxBalance, 18)),
     clamWmatic_rfv.plus(wmatic_value),
     clamWmatic_value.plus(wmatic_value),
+    qiMarketValue,
     // POL
     clamMaiPOL,
     clamFraxPOL,
@@ -568,9 +605,10 @@ export function updateProtocolMetrics(transaction: Transaction): void {
   pm.treasuryFraxMarketValue = mv_rfv[7]
   pm.treasuryWmaticRiskFreeValue = mv_rfv[8]
   pm.treasuryWmaticMarketValue = mv_rfv[9]
-  pm.treasuryClamMaiPOL = mv_rfv[10]
-  pm.treasuryClamFraxPOL = mv_rfv[11]
-  pm.treasuryClamWmaticPOL = mv_rfv[12]
+  pm.treasuryQiMarketValue = mv_rfv[10]
+  pm.treasuryClamMaiPOL = mv_rfv[11]
+  pm.treasuryClamFraxPOL = mv_rfv[12]
+  pm.treasuryClamWmaticPOL = mv_rfv[13]
 
   // Rebase rewards, APY, rebase
   pm.nextDistributedClam = getNextCLAMRebase(transaction)
