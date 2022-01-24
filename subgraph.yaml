@@ -31,6 +31,8 @@ dataSources:
           file: ./abis/OtterBondStakeDepository.json
         - name: OtterStaking
           file: ./abis/OtterStaking.json
+        - name: OtterStakingDistributor
+          file: './abis/OtterStakingDistributor.json'
         - name: ClamCirculatingSupply
           file: ./abis/ClamCirculatingSupply.json
         - name: ERC20
@@ -97,6 +99,8 @@ dataSources:
           file: ./abis/OtterBondStakeDepository.json
         - name: OtterStaking
           file: ./abis/OtterStaking.json
+        - name: OtterStakingDistributor
+          file: './abis/OtterStakingDistributor.json'
         - name: ClamCirculatingSupply
           file: ./abis/ClamCirculatingSupply.json
         - name: ERC20

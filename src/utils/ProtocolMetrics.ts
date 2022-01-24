@@ -9,6 +9,7 @@ import { OtterQiDAOInvestment } from '../../generated/OtterTreasury/OtterQiDAOIn
 import { OtterLake } from '../../generated/OtterTreasury/OtterLake'
 import { PearlNote } from '../../generated/OtterTreasury/PearlNote'
 import { OtterPearlERC20 } from '../../generated/OtterTreasury/OtterPearlERC20'
+import { OtterStakingDistributor } from '../../generated/OtterTreasury/OtterStakingDistributor'
 
 import { ProtocolMetric, Transaction } from '../../generated/schema'
 import {
@@ -22,6 +23,7 @@ import {
   PEARL_ERC20_CONTRACT,
   QI_ERC20_CONTRACT,
   STAKING_CONTRACT,
+  STAKING_DISTRIBUTOR_CONTRACT,
   TREASURY_ADDRESS,
   UNI_CLAM_MAI_PAIR,
   UNI_CLAM_FRAX_PAIR,
@@ -195,7 +197,7 @@ export function getQiMarketValue(): BigDecimal {
   let qi = toDecimal(lp.getReserves().value1, 18)
   let wmaticPerQi = wmatic.div(qi)
   let usdPerQi = wmaticPerQi.times(getWMATICUSDRate())
-  log.info('wmatic = {}, qi = {}, 1 qi = {} wmatic = {} USD', [
+  log.debug('wmatic = {}, qi = {}, 1 qi = {} wmatic = {} USD', [
     wmatic.toString(),
     qi.toString(),
     wmaticPerQi.toString(),
@@ -207,9 +209,9 @@ export function getQiMarketValue(): BigDecimal {
     qiERC20.balanceOf(Address.fromString(TREASURY_ADDRESS)),
     18,
   )
-  log.info('qi balance of treasury = {}', [qiBalance.toString()])
+  log.debug('qi balance of treasury = {}', [qiBalance.toString()])
   let marketValue = qiBalance.times(usdPerQi)
-  log.info('qi marketValue = {}', [marketValue.toString()])
+  log.debug('qi marketValue = {}', [marketValue.toString()])
   return marketValue
 }
 
@@ -511,11 +513,7 @@ function getAPY_PearlChest(nextEpochRebase: BigDecimal): BigDecimal[] {
   ]
 }
 
-function getRunway(
-  sCLAM: BigDecimal,
-  rfv: BigDecimal,
-  rebase: BigDecimal,
-): BigDecimal[] {
+function getRunway(totalSupply: BigDecimal, rfv: BigDecimal): BigDecimal[] {
   let runway2dot5k = BigDecimal.fromString('0')
   let runway5k = BigDecimal.fromString('0')
   let runway7dot5k = BigDecimal.fromString('0')
@@ -526,12 +524,28 @@ function getRunway(
   let runway100k = BigDecimal.fromString('0')
   let runwayCurrent = BigDecimal.fromString('0')
 
+  let rebaseRate = BigDecimal.fromString('0')
+  let distirbutor = OtterStakingDistributor.bind(
+    Address.fromString(STAKING_DISTRIBUTOR_CONTRACT),
+  )
+
+  for (let i = 0; i < 10; i++) {
+    let info = distirbutor.try_info(BigInt.fromI32(i))
+    if (info.reverted) {
+      break
+    }
+    let rate = toDecimal(info.value.value0, 4) // 1% =  10000
+    rebaseRate = rebaseRate.plus(rate)
+    log.info('i = {}, distribute rate = {}%', [i.toString(), rate.toString()])
+  }
+  log.info('total distribute rate = {}%', [rebaseRate.toString()])
+
   if (
-    sCLAM.gt(BigDecimal.fromString('0')) &&
+    totalSupply.gt(BigDecimal.fromString('0')) &&
     rfv.gt(BigDecimal.fromString('0')) &&
-    rebase.gt(BigDecimal.fromString('0'))
+    rebaseRate.gt(BigDecimal.fromString('0'))
   ) {
-    let treasury_runway = Number.parseFloat(rfv.div(sCLAM).toString())
+    let treasury_runway = Number.parseFloat(rfv.div(totalSupply).toString())
 
     let runway2dot5k_num =
       Math.log(treasury_runway) / Math.log(1 + 0.0029438) / 3
@@ -544,7 +558,7 @@ function getRunway(
     let runway70k_num = Math.log(treasury_runway) / Math.log(1 + 0.00600065) / 3
     let runway100k_num =
       Math.log(treasury_runway) / Math.log(1 + 0.00632839) / 3
-    let nextEpochRebase_number = Number.parseFloat(rebase.toString()) / 100
+    let nextEpochRebase_number = Number.parseFloat(rebaseRate.toString()) / 100
     let runwayCurrent_num =
       Math.log(treasury_runway) / Math.log(1 + nextEpochRebase_number) / 3
 
@@ -627,11 +641,7 @@ export function updateProtocolMetrics(transaction: Transaction): void {
   }
 
   //Runway
-  let runways = getRunway(
-    pm.sClamCirculatingSupply,
-    pm.treasuryRiskFreeValue,
-    pm.nextEpochRebase,
-  )
+  let runways = getRunway(pm.totalSupply, pm.treasuryRiskFreeValue)
   pm.runway2dot5k = runways[0]
   pm.runway5k = runways[1]
   pm.runway7dot5k = runways[2]
