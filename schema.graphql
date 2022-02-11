@@ -175,6 +175,7 @@ type ProtocolMetric @entity {
   treasuryWmaticRiskFreeValue: BigDecimal!
   treasuryWmaticMarketValue: BigDecimal!
   treasuryQiMarketValue: BigDecimal!
+  treasuryDquickMarketValue: BigDecimal!
   currentAPY: BigDecimal!
   safeHandAPY: BigDecimal!
   furryHandAPY: BigDecimal!

@@ -5,7 +5,9 @@ import { OtterStaking } from '../../generated/OtterTreasury/OtterStaking'
 import { ClamCirculatingSupply } from '../../generated/OtterTreasury/ClamCirculatingSupply'
 import { ERC20 } from '../../generated/OtterTreasury/ERC20'
 import { UniswapV2Pair } from '../../generated/OtterTreasury/UniswapV2Pair'
+import { dQuick } from '../../generated/OtterTreasury/dQuick'
 import { OtterQiDAOInvestment } from '../../generated/OtterTreasury/OtterQiDAOInvestment'
+import { OtterQuickSwapInvestment } from '../../generated/OtterTreasury/OtterQuickSwapInvestment'
 import { OtterLake } from '../../generated/OtterTreasury/OtterLake'
 import { PearlNote } from '../../generated/OtterTreasury/PearlNote'
 import { OtterPearlERC20 } from '../../generated/OtterTreasury/OtterPearlERC20'
@@ -22,6 +24,7 @@ import {
   MATIC_ERC20_CONTRACT,
   PEARL_ERC20_CONTRACT,
   QI_ERC20_CONTRACT,
+  DQUICK_CONTRACT,
   STAKING_CONTRACT,
   STAKING_DISTRIBUTOR_CONTRACT,
   TREASURY_ADDRESS,
@@ -34,8 +37,10 @@ import {
   UNI_MAI_USDC_PAIR_BLOCK,
   UNI_MAI_USDC_QI_INVESTMENT_PAIR,
   UNI_MAI_USDC_QI_INVESTMENT_PAIR_BLOCK,
+  UNI_MAI_CLAM_DQUICK_INVESTMENT_PAIR,
+  UNI_MAI_CLAM_DQUICK_INVESTMENT_PAIR_BLOCK,
   UNI_QI_WMATIC_PAIR,
-  UNI_QI_WMATIC_PAIR_BLOCK,
+  UNI_DQUICK_WMATIC_PAIR,
   OTTER_LAKE_ADDRESS,
   PEARL_CHEST_BLOCK,
 } from './Constants'
@@ -82,6 +87,7 @@ export function loadOrCreateProtocolMetric(timestamp: BigInt): ProtocolMetric {
     protocolMetric.treasuryWmaticRiskFreeValue = BigDecimal.fromString('0')
     protocolMetric.treasuryWmaticMarketValue = BigDecimal.fromString('0')
     protocolMetric.treasuryQiMarketValue = BigDecimal.fromString('0')
+    protocolMetric.treasuryDquickMarketValue = BigDecimal.fromString('0')
     protocolMetric.treasuryClamMaiPOL = BigDecimal.fromString('0')
     protocolMetric.treasuryClamFraxPOL = BigDecimal.fromString('0')
     protocolMetric.treasuryClamWmaticPOL = BigDecimal.fromString('0')
@@ -191,6 +197,30 @@ function getMaiUsdcQiInvestmentValue(): BigDecimal {
   return value
 }
 
+export function getdQuickMarketValue(): BigDecimal {
+  let lp = UniswapV2Pair.bind(Address.fromString(UNI_DQUICK_WMATIC_PAIR))
+  let wmatic = toDecimal(lp.getReserves().value0, 18)
+  let quick = toDecimal(lp.getReserves().value1, 18)
+  let wmaticPerQuick = wmatic.div(quick)
+  let usdPerQuick = wmaticPerQuick.times(getWMATICUSDRate())
+  log.info('wmatic = {}, quick = {}, 1 quick = {} wmatic = {} USD', [
+    wmatic.toString(),
+    quick.toString(),
+    wmaticPerQuick.toString(),
+    usdPerQuick.toString(),
+  ])
+
+  let token = dQuick.bind(Address.fromString(DQUICK_CONTRACT))
+  let quickBalance = toDecimal(
+    token.QUICKBalance(Address.fromString(TREASURY_ADDRESS)),
+    18,
+  )
+  log.info('quick balance of treasury = {}', [quickBalance.toString()])
+  let marketValue = quickBalance.times(usdPerQuick)
+  log.info('quick marketValue = {}', [marketValue.toString()])
+  return marketValue
+}
+
 export function getQiMarketValue(): BigDecimal {
   let lp = UniswapV2Pair.bind(Address.fromString(UNI_QI_WMATIC_PAIR))
   let wmatic = toDecimal(lp.getReserves().value0, 18)
@@ -226,17 +256,30 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
     Address.fromString(UNI_CLAM_WMATIC_PAIR),
   )
 
-  let treasury_address = TREASURY_ADDRESS
-  let maiBalance = maiERC20.balanceOf(Address.fromString(treasury_address))
-  let fraxBalance = fraxERC20.balanceOf(Address.fromString(treasury_address))
+  let treasury_address = Address.fromString(TREASURY_ADDRESS)
+  let maiBalance = maiERC20.balanceOf(treasury_address)
+  let fraxBalance = fraxERC20.balanceOf(treasury_address)
 
-  let wmaticBalance = maticERC20.balanceOf(Address.fromString(treasury_address))
+  let wmaticBalance = maticERC20.balanceOf(treasury_address)
   let wmatic_value = toDecimal(wmaticBalance, 18).times(getWMATICUSDRate())
 
-  //CLAM-MAI
-  let clamMaiBalance = clamMaiPair.balanceOf(
-    Address.fromString(treasury_address),
-  )
+  //CLAM-MAI & Investment to Quickswap
+  let clamMaiBalance = clamMaiPair.balanceOf(treasury_address)
+  let dQuickMarketValue = BigDecimal.fromString('0')
+
+  if (
+    transaction.blockNumber.gt(
+      BigInt.fromString(UNI_MAI_CLAM_DQUICK_INVESTMENT_PAIR_BLOCK),
+    )
+  ) {
+    let pair = OtterQuickSwapInvestment.bind(
+      Address.fromString(UNI_MAI_CLAM_DQUICK_INVESTMENT_PAIR),
+    )
+    let clamMaiInvestmentBalance = pair.balanceOf(treasury_address)
+    clamMaiBalance = clamMaiBalance.plus(clamMaiInvestmentBalance)
+    dQuickMarketValue = getdQuickMarketValue()
+  }
+
   let clamMaiTotalLP = toDecimal(clamMaiPair.totalSupply(), 18)
   let clamMaiPOL = toDecimal(clamMaiBalance, 18)
     .div(clamMaiTotalLP)
@@ -251,9 +294,7 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
   let clamFraxTotalLP = BigDecimal.fromString('0')
   let clamFraxPOL = BigDecimal.fromString('0')
   if (transaction.blockNumber.gt(BigInt.fromString(UNI_CLAM_FRAX_PAIR_BLOCK))) {
-    clamFraxBalance = clamFraxPair.balanceOf(
-      Address.fromString(treasury_address),
-    )
+    clamFraxBalance = clamFraxPair.balanceOf(treasury_address)
     clamFrax_value = getPairUSD(clamFraxBalance, UNI_CLAM_FRAX_PAIR)
     clamFrax_rfv = getDiscountedPairUSD(clamFraxBalance, UNI_CLAM_FRAX_PAIR)
     clamFraxTotalLP = toDecimal(clamFraxPair.totalSupply(), 18)
@@ -275,7 +316,7 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
   if (
     transaction.blockNumber.gt(BigInt.fromString(UNI_CLAM_WMATIC_PAIR_BLOCK))
   ) {
-    clamWmatic = clamWmaticPair.balanceOf(Address.fromString(treasury_address))
+    clamWmatic = clamWmaticPair.balanceOf(treasury_address)
     log.debug('clamMaticBalance {}', [clamWmatic.toString()])
 
     clamWmatic_value = getPairWMATIC(clamWmatic, UNI_CLAM_WMATIC_PAIR)
@@ -293,16 +334,12 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
     }
   }
 
-  let qiMarketValue = BigDecimal.fromString('0')
-  if (transaction.blockNumber.gt(BigInt.fromString(UNI_QI_WMATIC_PAIR_BLOCK))) {
-    qiMarketValue = getQiMarketValue()
-  }
-
   let maiUsdcValueDecimal = BigDecimal.fromString('0')
   if (transaction.blockNumber.ge(BigInt.fromString(UNI_MAI_USDC_PAIR_BLOCK))) {
     maiUsdcValueDecimal = getMaiUsdcValue()
   }
 
+  let qiMarketValue = BigDecimal.fromString('0')
   let maiUsdcQiInvestmentValueDecimal = BigDecimal.fromString('0')
   if (
     transaction.blockNumber.gt(
@@ -310,6 +347,7 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
     )
   ) {
     maiUsdcQiInvestmentValueDecimal = getMaiUsdcQiInvestmentValue()
+    qiMarketValue = getQiMarketValue()
   }
 
   let stableValue = maiBalance.plus(fraxBalance)
@@ -324,6 +362,7 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
     .plus(lpValue)
     .plus(wmatic_value)
     .plus(qiMarketValue)
+    .plus(dQuickMarketValue)
   let rfv = stableValueDecimal.plus(rfvLpValue)
 
   log.debug('Treasury Market Value {}', [mv.toString()])
@@ -338,6 +377,7 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
   log.debug('Treasury CLAM-MAI RFV {}', [clamMai_rfv.toString()])
   log.debug('Treasury CLAM-FRAX RFV {}', [clamFrax_rfv.toString()])
   log.debug('Treasury Qi Market value {}', [qiMarketValue.toString()])
+  log.debug('Treasury dQuick Market value {}', [dQuickMarketValue.toString()])
 
   return [
     mv,
@@ -355,6 +395,7 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
     clamWmatic_rfv.plus(wmatic_value),
     clamWmatic_value.plus(wmatic_value),
     qiMarketValue,
+    dQuickMarketValue,
     // POL
     clamMaiPOL,
     clamFraxPOL,
@@ -620,9 +661,10 @@ export function updateProtocolMetrics(transaction: Transaction): void {
   pm.treasuryWmaticRiskFreeValue = mv_rfv[8]
   pm.treasuryWmaticMarketValue = mv_rfv[9]
   pm.treasuryQiMarketValue = mv_rfv[10]
-  pm.treasuryClamMaiPOL = mv_rfv[11]
-  pm.treasuryClamFraxPOL = mv_rfv[12]
-  pm.treasuryClamWmaticPOL = mv_rfv[13]
+  pm.treasuryDquickMarketValue = mv_rfv[11]
+  pm.treasuryClamMaiPOL = mv_rfv[12]
+  pm.treasuryClamFraxPOL = mv_rfv[13]
+  pm.treasuryClamWmaticPOL = mv_rfv[14]
 
   // Rebase rewards, APY, rebase
   pm.nextDistributedClam = getNextCLAMRebase(transaction)
