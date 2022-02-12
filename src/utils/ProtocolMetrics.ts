@@ -39,7 +39,10 @@ import {
   UNI_MAI_USDC_QI_INVESTMENT_PAIR_BLOCK,
   UNI_MAI_CLAM_DQUICK_INVESTMENT_PAIR,
   UNI_MAI_CLAM_DQUICK_INVESTMENT_PAIR_BLOCK,
+  UNI_QI_WMATIC_INVESTMENT_PAIR,
+  UNI_QI_WMATIC_INVESTMENT_PAIR_BLOCK,
   UNI_QI_WMATIC_PAIR,
+  UNI_QI_WMATIC_PAIR_BLOCK,
   UNI_DQUICK_WMATIC_PAIR,
   OTTER_LAKE_ADDRESS,
   PEARL_CHEST_BLOCK,
@@ -88,6 +91,10 @@ export function loadOrCreateProtocolMetric(timestamp: BigInt): ProtocolMetric {
     protocolMetric.treasuryWmaticMarketValue = BigDecimal.fromString('0')
     protocolMetric.treasuryQiMarketValue = BigDecimal.fromString('0')
     protocolMetric.treasuryDquickMarketValue = BigDecimal.fromString('0')
+    protocolMetric.treasuryQiWmaticMarketValue = BigDecimal.fromString('0')
+    protocolMetric.treasuryQiWmaticQiInvestmentMarketValue = BigDecimal.fromString(
+      '0',
+    )
     protocolMetric.treasuryClamMaiPOL = BigDecimal.fromString('0')
     protocolMetric.treasuryClamFraxPOL = BigDecimal.fromString('0')
     protocolMetric.treasuryClamWmaticPOL = BigDecimal.fromString('0')
@@ -148,13 +155,13 @@ function getMaiUsdcValue(): BigDecimal {
   let reserves = pair.getReserves()
   let usdc = toDecimal(reserves.value0, 6)
   let mai = toDecimal(reserves.value1, 18)
-  log.debug('pair usdc {}, mai {}', [mai.toString(), usdc.toString()])
+  log.info('pair usdc {}, mai {}', [mai.toString(), usdc.toString()])
 
   let balance = pair
     .balanceOf(Address.fromString(TREASURY_ADDRESS))
     .toBigDecimal()
   let total = pair.totalSupply().toBigDecimal()
-  log.debug('MAI/USDC LP balance {}, total {}', [
+  log.info('pair MAI/USDC LP balance {}, total {}', [
     balance.toString(),
     total.toString(),
   ])
@@ -163,28 +170,24 @@ function getMaiUsdcValue(): BigDecimal {
     .plus(mai)
     .times(balance)
     .div(total)
-  log.debug('MAI/USDC value {}', [value.toString()])
+  log.info('pair MAI/USDC value {}', [value.toString()])
   return value
 }
 
-function getMaiUsdcQiInvestmentValue(): BigDecimal {
+function getMaiUsdcInvestmentValue(): BigDecimal {
   let pair = OtterQiDAOInvestment.bind(
     Address.fromString(UNI_MAI_USDC_QI_INVESTMENT_PAIR),
   )
-
   let reserves = pair.getReserves()
   let usdc = toDecimal(reserves.value0, 6)
   let mai = toDecimal(reserves.value1, 18)
-  log.debug('qi investment pair usdc {}, mai {}', [
-    mai.toString(),
-    usdc.toString(),
-  ])
+  log.info('investment usdc {}, mai {}', [mai.toString(), usdc.toString()])
 
   let balance = pair
     .balanceOf(Address.fromString(TREASURY_ADDRESS))
     .toBigDecimal()
   let total = pair.totalSupply().toBigDecimal()
-  log.debug('qi investment MAI/USDC LP balance {}, total {}', [
+  log.info('investment MAI/USDC LP balance {}, total {}', [
     balance.toString(),
     total.toString(),
   ])
@@ -193,17 +196,76 @@ function getMaiUsdcQiInvestmentValue(): BigDecimal {
     .plus(mai)
     .times(balance)
     .div(total)
-  log.debug('qi investment MAI/USDC value {}', [value.toString()])
+  log.info('investment MAI/USDC value {}', [value.toString()])
+  return value
+}
+
+function getQiWmaticMarketValue(): BigDecimal {
+  let pair = UniswapV2Pair.bind(Address.fromString(UNI_QI_WMATIC_PAIR))
+  let reserves = pair.getReserves()
+  let wmatic = toDecimal(reserves.value0, 18)
+  let qi = toDecimal(reserves.value1, 18)
+  log.info('pair wmatic {}, qi {}', [qi.toString(), wmatic.toString()])
+
+  let balance = pair
+    .balanceOf(Address.fromString(TREASURY_ADDRESS))
+    .toBigDecimal()
+
+  let total = pair.totalSupply().toBigDecimal()
+  log.info('pair WMATIC/Qi LP balance {}, total {}', [
+    balance.toString(),
+    total.toString(),
+  ])
+
+  let wmaticPerQi = wmatic.div(qi)
+
+  let value = wmatic
+    .plus(wmaticPerQi.times(qi))
+    .times(getWMATICUSDRate())
+    .times(balance)
+    .div(total)
+  log.info('pair WMATIC/Qi value {}', [value.toString()])
+  return value
+}
+
+function getQiWmaticInvestmentMarketValue(): BigDecimal {
+  let pair = OtterQiDAOInvestment.bind(
+    Address.fromString(UNI_QI_WMATIC_INVESTMENT_PAIR),
+  )
+  let reserves = pair.getReserves()
+  let wmatic = toDecimal(reserves.value0, 18)
+  let qi = toDecimal(reserves.value1, 18)
+  log.info('investment wmatic {}, qi {}', [qi.toString(), wmatic.toString()])
+
+  let balance = pair
+    .balanceOf(Address.fromString(TREASURY_ADDRESS))
+    .toBigDecimal()
+
+  let total = pair.totalSupply().toBigDecimal()
+  log.info('investment WMATIC/Qi LP balance {}, total {}', [
+    balance.toString(),
+    total.toString(),
+  ])
+
+  let wmaticPerQi = wmatic.div(qi)
+
+  let value = wmatic
+    .plus(wmaticPerQi.times(qi))
+    .times(getWMATICUSDRate())
+    .times(balance)
+    .div(total)
+  log.info('investment WMATIC/Qi value {}', [value.toString()])
   return value
 }
 
 export function getdQuickMarketValue(): BigDecimal {
   let lp = UniswapV2Pair.bind(Address.fromString(UNI_DQUICK_WMATIC_PAIR))
-  let wmatic = toDecimal(lp.getReserves().value0, 18)
-  let quick = toDecimal(lp.getReserves().value1, 18)
+  let reserves = lp.getReserves()
+  let wmatic = toDecimal(reserves.value0, 18)
+  let quick = toDecimal(reserves.value1, 18)
   let wmaticPerQuick = wmatic.div(quick)
   let usdPerQuick = wmaticPerQuick.times(getWMATICUSDRate())
-  log.info('wmatic = {}, quick = {}, 1 quick = {} wmatic = {} USD', [
+  log.debug('wmatic = {}, quick = {}, 1 quick = {} wmatic = {} USD', [
     wmatic.toString(),
     quick.toString(),
     wmaticPerQuick.toString(),
@@ -215,9 +277,9 @@ export function getdQuickMarketValue(): BigDecimal {
     token.QUICKBalance(Address.fromString(TREASURY_ADDRESS)),
     18,
   )
-  log.info('quick balance of treasury = {}', [quickBalance.toString()])
+  log.debug('quick balance of treasury = {}', [quickBalance.toString()])
   let marketValue = quickBalance.times(usdPerQuick)
-  log.info('quick marketValue = {}', [marketValue.toString()])
+  log.debug('quick marketValue = {}', [marketValue.toString()])
   return marketValue
 }
 
@@ -346,8 +408,21 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
       BigInt.fromString(UNI_MAI_USDC_QI_INVESTMENT_PAIR_BLOCK),
     )
   ) {
-    maiUsdcQiInvestmentValueDecimal = getMaiUsdcQiInvestmentValue()
+    maiUsdcQiInvestmentValueDecimal = getMaiUsdcInvestmentValue()
     qiMarketValue = getQiMarketValue()
+  }
+
+  let qiWmaticMarketValue = BigDecimal.fromString('0')
+  if (transaction.blockNumber.gt(BigInt.fromString(UNI_QI_WMATIC_PAIR_BLOCK))) {
+    qiWmaticMarketValue = getQiWmaticMarketValue()
+  }
+  let qiWmaticQiInvestmentMarketValue = BigDecimal.fromString('0')
+  if (
+    transaction.blockNumber.gt(
+      BigInt.fromString(UNI_QI_WMATIC_INVESTMENT_PAIR_BLOCK),
+    )
+  ) {
+    qiWmaticQiInvestmentMarketValue = getQiWmaticInvestmentMarketValue()
   }
 
   let stableValue = maiBalance.plus(fraxBalance)
@@ -363,6 +438,8 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
     .plus(wmatic_value)
     .plus(qiMarketValue)
     .plus(dQuickMarketValue)
+    .plus(qiWmaticMarketValue)
+    .plus(qiWmaticQiInvestmentMarketValue)
   let rfv = stableValueDecimal.plus(rfvLpValue)
 
   log.debug('Treasury Market Value {}', [mv.toString()])
@@ -378,6 +455,12 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
   log.debug('Treasury CLAM-FRAX RFV {}', [clamFrax_rfv.toString()])
   log.debug('Treasury Qi Market value {}', [qiMarketValue.toString()])
   log.debug('Treasury dQuick Market value {}', [dQuickMarketValue.toString()])
+  log.debug('Treasury  Qi/WMATIC Market value {}', [
+    qiWmaticMarketValue.toString(),
+  ])
+  log.debug('Treasury Qi Investment Qi/WMATIC Market value {}', [
+    qiWmaticQiInvestmentMarketValue.toString(),
+  ])
 
   return [
     mv,
@@ -396,6 +479,8 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
     clamWmatic_value.plus(wmatic_value),
     qiMarketValue,
     dQuickMarketValue,
+    qiWmaticMarketValue,
+    qiWmaticQiInvestmentMarketValue,
     // POL
     clamMaiPOL,
     clamFraxPOL,
@@ -662,9 +747,11 @@ export function updateProtocolMetrics(transaction: Transaction): void {
   pm.treasuryWmaticMarketValue = mv_rfv[9]
   pm.treasuryQiMarketValue = mv_rfv[10]
   pm.treasuryDquickMarketValue = mv_rfv[11]
-  pm.treasuryClamMaiPOL = mv_rfv[12]
-  pm.treasuryClamFraxPOL = mv_rfv[13]
-  pm.treasuryClamWmaticPOL = mv_rfv[14]
+  pm.treasuryQiWmaticMarketValue = mv_rfv[12]
+  pm.treasuryQiWmaticQiInvestmentMarketValue = mv_rfv[13]
+  pm.treasuryClamMaiPOL = mv_rfv[14]
+  pm.treasuryClamFraxPOL = mv_rfv[15]
+  pm.treasuryClamWmaticPOL = mv_rfv[16]
 
   // Rebase rewards, APY, rebase
   pm.nextDistributedClam = getNextCLAMRebase(transaction)

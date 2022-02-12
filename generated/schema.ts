@@ -1515,6 +1515,14 @@ export class ProtocolMetric extends Entity {
       "treasuryDquickMarketValue",
       Value.fromBigDecimal(BigDecimal.zero())
     );
+    this.set(
+      "treasuryQiWmaticMarketValue",
+      Value.fromBigDecimal(BigDecimal.zero())
+    );
+    this.set(
+      "treasuryQiWmaticQiInvestmentMarketValue",
+      Value.fromBigDecimal(BigDecimal.zero())
+    );
     this.set("currentAPY", Value.fromBigDecimal(BigDecimal.zero()));
     this.set("safeHandAPY", Value.fromBigDecimal(BigDecimal.zero()));
     this.set("furryHandAPY", Value.fromBigDecimal(BigDecimal.zero()));
@@ -1741,6 +1749,27 @@ export class ProtocolMetric extends Entity {
 
   set treasuryDquickMarketValue(value: BigDecimal) {
     this.set("treasuryDquickMarketValue", Value.fromBigDecimal(value));
+  }
+
+  get treasuryQiWmaticMarketValue(): BigDecimal {
+    let value = this.get("treasuryQiWmaticMarketValue");
+    return value!.toBigDecimal();
+  }
+
+  set treasuryQiWmaticMarketValue(value: BigDecimal) {
+    this.set("treasuryQiWmaticMarketValue", Value.fromBigDecimal(value));
+  }
+
+  get treasuryQiWmaticQiInvestmentMarketValue(): BigDecimal {
+    let value = this.get("treasuryQiWmaticQiInvestmentMarketValue");
+    return value!.toBigDecimal();
+  }
+
+  set treasuryQiWmaticQiInvestmentMarketValue(value: BigDecimal) {
+    this.set(
+      "treasuryQiWmaticQiInvestmentMarketValue",
+      Value.fromBigDecimal(value)
+    );
   }
 
   get currentAPY(): BigDecimal {
