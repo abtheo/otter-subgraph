@@ -215,18 +215,14 @@
   {
     "inputs": [],
     "name": "bondPrice",
-    "outputs": [
-      { "internalType": "uint256", "name": "price_", "type": "uint256" }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "price_", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "bondPriceInUSD",
-    "outputs": [
-      { "internalType": "uint256", "name": "price_", "type": "uint256" }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "price_", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -240,18 +236,14 @@
   {
     "inputs": [],
     "name": "debtDecay",
-    "outputs": [
-      { "internalType": "uint256", "name": "decay_", "type": "uint256" }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "decay_", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "debtRatio",
-    "outputs": [
-      { "internalType": "uint256", "name": "debtRatio_", "type": "uint256" }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "debtRatio_", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -314,33 +306,23 @@
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "uint256", "name": "_value", "type": "uint256" }
-    ],
+    "inputs": [{ "internalType": "uint256", "name": "_value", "type": "uint256" }],
     "name": "payoutFor",
     "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "address", "name": "_depositor", "type": "address" }
-    ],
+    "inputs": [{ "internalType": "address", "name": "_depositor", "type": "address" }],
     "name": "pendingPayoutFor",
-    "outputs": [
-      { "internalType": "uint256", "name": "pendingPayout_", "type": "uint256" }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "pendingPayout_", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "address", "name": "_depositor", "type": "address" }
-    ],
+    "inputs": [{ "internalType": "address", "name": "_depositor", "type": "address" }],
     "name": "percentVestedFor",
-    "outputs": [
-      { "internalType": "uint256", "name": "percentVested_", "type": "uint256" }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "percentVested_", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -359,18 +341,14 @@
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "address", "name": "newOwner_", "type": "address" }
-    ],
+    "inputs": [{ "internalType": "address", "name": "newOwner_", "type": "address" }],
     "name": "pushManagement",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "address", "name": "_token", "type": "address" }
-    ],
+    "inputs": [{ "internalType": "address", "name": "_token", "type": "address" }],
     "name": "recoverLostToken",
     "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
     "stateMutability": "nonpayable",
@@ -427,9 +405,7 @@
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "address", "name": "_staking", "type": "address" }
-    ],
+    "inputs": [{ "internalType": "address", "name": "_staking", "type": "address" }],
     "name": "setStaking",
     "outputs": [],
     "stateMutability": "nonpayable",

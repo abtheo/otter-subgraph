@@ -366,9 +366,7 @@
       { "internalType": "uint256", "name": "_profit", "type": "uint256" }
     ],
     "name": "deposit",
-    "outputs": [
-      { "internalType": "uint256", "name": "send_", "type": "uint256" }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "send_", "type": "uint256" }],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -508,9 +506,7 @@
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "address", "name": "newOwner_", "type": "address" }
-    ],
+    "inputs": [{ "internalType": "address", "name": "newOwner_", "type": "address" }],
     "name": "pushManagement",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -538,9 +534,7 @@
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "uint256", "name": "_amount", "type": "uint256" }
-    ],
+    "inputs": [{ "internalType": "uint256", "name": "_amount", "type": "uint256" }],
     "name": "repayDebtWithCLAM",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -668,9 +662,7 @@
       { "internalType": "uint256", "name": "_amount", "type": "uint256" }
     ],
     "name": "valueOfToken",
-    "outputs": [
-      { "internalType": "uint256", "name": "value_", "type": "uint256" }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "value_", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },

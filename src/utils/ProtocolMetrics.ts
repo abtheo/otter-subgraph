@@ -50,13 +50,7 @@ import {
 } from './Constants'
 import { dayFromTimestamp } from './Dates'
 import { toDecimal } from './Decimals'
-import {
-  getCLAMUSDRate,
-  getDiscountedPairUSD,
-  getPairUSD,
-  getWMATICUSDRate,
-  getPairWMATIC,
-} from './Price'
+import { getCLAMUSDRate, getDiscountedPairUSD, getPairUSD, getWMATICUSDRate, getPairWMATIC } from './Price'
 
 export function loadOrCreateProtocolMetric(timestamp: BigInt): ProtocolMetric {
   let dayTimestamp = dayFromTimestamp(timestamp)
@@ -73,9 +67,7 @@ export function loadOrCreateProtocolMetric(timestamp: BigInt): ProtocolMetric {
     protocolMetric.totalValueLocked = BigDecimal.fromString('0')
     protocolMetric.treasuryRiskFreeValue = BigDecimal.fromString('0')
     protocolMetric.treasuryMaiUsdcRiskFreeValue = BigDecimal.fromString('0')
-    protocolMetric.treasuryMaiUsdcQiInvestmentRiskFreeValue = BigDecimal.fromString(
-      '0',
-    )
+    protocolMetric.treasuryMaiUsdcQiInvestmentRiskFreeValue = BigDecimal.fromString('0')
     protocolMetric.treasuryMarketValue = BigDecimal.fromString('0')
     protocolMetric.nextEpochRebase = BigDecimal.fromString('0')
     protocolMetric.nextDistributedClam = BigDecimal.fromString('0')
@@ -94,9 +86,7 @@ export function loadOrCreateProtocolMetric(timestamp: BigInt): ProtocolMetric {
     protocolMetric.treasuryQiMarketValue = BigDecimal.fromString('0')
     protocolMetric.treasuryDquickMarketValue = BigDecimal.fromString('0')
     protocolMetric.treasuryQiWmaticMarketValue = BigDecimal.fromString('0')
-    protocolMetric.treasuryQiWmaticQiInvestmentMarketValue = BigDecimal.fromString(
-      '0',
-    )
+    protocolMetric.treasuryQiWmaticQiInvestmentMarketValue = BigDecimal.fromString('0')
     protocolMetric.treasuryClamMaiPOL = BigDecimal.fromString('0')
     protocolMetric.treasuryClamFraxPOL = BigDecimal.fromString('0')
     protocolMetric.treasuryClamWmaticPOL = BigDecimal.fromString('0')
@@ -107,31 +97,17 @@ export function loadOrCreateProtocolMetric(timestamp: BigInt): ProtocolMetric {
 }
 
 function getTotalSupply(): BigDecimal {
-  let clam_contract = OtterClamERC20V2.bind(
-    Address.fromString(CLAM_ERC20_CONTRACT),
-  )
+  let clam_contract = OtterClamERC20V2.bind(Address.fromString(CLAM_ERC20_CONTRACT))
   let total_supply = toDecimal(clam_contract.totalSupply(), 9)
   log.debug('Total Supply {}', [total_supply.toString()])
   return total_supply
 }
 
-function getCirculatingSupply(
-  transaction: Transaction,
-  total_supply: BigDecimal,
-): BigDecimal {
+function getCirculatingSupply(transaction: Transaction, total_supply: BigDecimal): BigDecimal {
   let circ_supply = BigDecimal.fromString('0')
-  if (
-    transaction.blockNumber.gt(
-      BigInt.fromString(CIRCULATING_SUPPLY_CONTRACT_BLOCK),
-    )
-  ) {
-    let circulatingSupply_contract = ClamCirculatingSupply.bind(
-      Address.fromString(CIRCULATING_SUPPLY_CONTRACT),
-    )
-    circ_supply = toDecimal(
-      circulatingSupply_contract.CLAMCirculatingSupply(),
-      9,
-    )
+  if (transaction.blockNumber.gt(BigInt.fromString(CIRCULATING_SUPPLY_CONTRACT_BLOCK))) {
+    let circulatingSupply_contract = ClamCirculatingSupply.bind(Address.fromString(CIRCULATING_SUPPLY_CONTRACT))
+    circ_supply = toDecimal(circulatingSupply_contract.CLAMCirculatingSupply(), 9)
   } else {
     circ_supply = total_supply
   }
@@ -142,9 +118,7 @@ function getCirculatingSupply(
 function getSClamSupply(transaction: Transaction): BigDecimal {
   let sclam_supply = BigDecimal.fromString('0')
 
-  let sclam_contract = StakedOtterClamERC20V2.bind(
-    Address.fromString(SCLAM_ERC20_CONTRACT),
-  )
+  let sclam_contract = StakedOtterClamERC20V2.bind(Address.fromString(SCLAM_ERC20_CONTRACT))
   sclam_supply = toDecimal(sclam_contract.circulatingSupply(), 9)
 
   log.debug('sCLAM Supply {}', [sclam_supply.toString()])
@@ -159,14 +133,9 @@ function getMaiUsdcValue(): BigDecimal {
   let mai = toDecimal(reserves.value1, 18)
   log.info('pair usdc {}, mai {}', [mai.toString(), usdc.toString()])
 
-  let balance = pair
-    .balanceOf(Address.fromString(TREASURY_ADDRESS))
-    .toBigDecimal()
+  let balance = pair.balanceOf(Address.fromString(TREASURY_ADDRESS)).toBigDecimal()
   let total = pair.totalSupply().toBigDecimal()
-  log.info('pair MAI/USDC LP balance {}, total {}', [
-    balance.toString(),
-    total.toString(),
-  ])
+  log.info('pair MAI/USDC LP balance {}, total {}', [balance.toString(), total.toString()])
 
   let value = usdc
     .plus(mai)
@@ -177,22 +146,15 @@ function getMaiUsdcValue(): BigDecimal {
 }
 
 function getMaiUsdcInvestmentValue(): BigDecimal {
-  let pair = OtterQiDAOInvestment.bind(
-    Address.fromString(UNI_MAI_USDC_QI_INVESTMENT_PAIR),
-  )
+  let pair = OtterQiDAOInvestment.bind(Address.fromString(UNI_MAI_USDC_QI_INVESTMENT_PAIR))
   let reserves = pair.getReserves()
   let usdc = toDecimal(reserves.value0, 6)
   let mai = toDecimal(reserves.value1, 18)
   log.info('investment usdc {}, mai {}', [mai.toString(), usdc.toString()])
 
-  let balance = pair
-    .balanceOf(Address.fromString(TREASURY_ADDRESS))
-    .toBigDecimal()
+  let balance = pair.balanceOf(Address.fromString(TREASURY_ADDRESS)).toBigDecimal()
   let total = pair.totalSupply().toBigDecimal()
-  log.info('investment MAI/USDC LP balance {}, total {}', [
-    balance.toString(),
-    total.toString(),
-  ])
+  log.info('investment MAI/USDC LP balance {}, total {}', [balance.toString(), total.toString()])
 
   let value = usdc
     .plus(mai)
@@ -209,15 +171,10 @@ function getQiWmaticMarketValue(): BigDecimal {
   let qi = toDecimal(reserves.value1, 18)
   log.info('pair wmatic {}, qi {}', [qi.toString(), wmatic.toString()])
 
-  let balance = pair
-    .balanceOf(Address.fromString(TREASURY_ADDRESS))
-    .toBigDecimal()
+  let balance = pair.balanceOf(Address.fromString(TREASURY_ADDRESS)).toBigDecimal()
 
   let total = pair.totalSupply().toBigDecimal()
-  log.info('pair WMATIC/Qi LP balance {}, total {}', [
-    balance.toString(),
-    total.toString(),
-  ])
+  log.info('pair WMATIC/Qi LP balance {}, total {}', [balance.toString(), total.toString()])
 
   let wmaticPerQi = wmatic.div(qi)
 
@@ -231,23 +188,16 @@ function getQiWmaticMarketValue(): BigDecimal {
 }
 
 function getQiWmaticInvestmentMarketValue(): BigDecimal {
-  let pair = OtterQiDAOInvestment.bind(
-    Address.fromString(UNI_QI_WMATIC_INVESTMENT_PAIR),
-  )
+  let pair = OtterQiDAOInvestment.bind(Address.fromString(UNI_QI_WMATIC_INVESTMENT_PAIR))
   let reserves = pair.getReserves()
   let wmatic = toDecimal(reserves.value0, 18)
   let qi = toDecimal(reserves.value1, 18)
   log.info('investment wmatic {}, qi {}', [qi.toString(), wmatic.toString()])
 
-  let balance = pair
-    .balanceOf(Address.fromString(TREASURY_ADDRESS))
-    .toBigDecimal()
+  let balance = pair.balanceOf(Address.fromString(TREASURY_ADDRESS)).toBigDecimal()
 
   let total = pair.totalSupply().toBigDecimal()
-  log.info('investment WMATIC/Qi LP balance {}, total {}', [
-    balance.toString(),
-    total.toString(),
-  ])
+  log.info('investment WMATIC/Qi LP balance {}, total {}', [balance.toString(), total.toString()])
 
   let wmaticPerQi = wmatic.div(qi)
 
@@ -275,10 +225,7 @@ export function getdQuickMarketValue(): BigDecimal {
   ])
 
   let token = dQuick.bind(Address.fromString(DQUICK_CONTRACT))
-  let quickBalance = toDecimal(
-    token.QUICKBalance(Address.fromString(TREASURY_ADDRESS)),
-    18,
-  )
+  let quickBalance = toDecimal(token.QUICKBalance(Address.fromString(TREASURY_ADDRESS)), 18)
   log.debug('quick balance of treasury = {}', [quickBalance.toString()])
   let marketValue = quickBalance.times(usdPerQuick)
   log.debug('quick marketValue = {}', [marketValue.toString()])
@@ -299,10 +246,7 @@ export function getQiMarketValue(): BigDecimal {
   ])
 
   let qiERC20 = ERC20.bind(Address.fromString(QI_ERC20_CONTRACT))
-  let qiBalance = toDecimal(
-    qiERC20.balanceOf(Address.fromString(TREASURY_ADDRESS)),
-    18,
-  )
+  let qiBalance = toDecimal(qiERC20.balanceOf(Address.fromString(TREASURY_ADDRESS)), 18)
   log.debug('qi balance of treasury = {}', [qiBalance.toString()])
   let marketValue = qiBalance.times(usdPerQi)
   log.debug('qi marketValue = {}', [marketValue.toString()])
@@ -317,9 +261,7 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
 
   let clamMaiPair = UniswapV2Pair.bind(Address.fromString(UNI_CLAM_MAI_PAIR))
   let clamFraxPair = UniswapV2Pair.bind(Address.fromString(UNI_CLAM_FRAX_PAIR))
-  let clamWmaticPair = UniswapV2Pair.bind(
-    Address.fromString(UNI_CLAM_WMATIC_PAIR),
-  )
+  let clamWmaticPair = UniswapV2Pair.bind(Address.fromString(UNI_CLAM_WMATIC_PAIR))
 
   let treasury_address = Address.fromString(TREASURY_ADDRESS)
   let maiBalance = maiERC20.balanceOf(treasury_address)
@@ -333,14 +275,8 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
   let clamMaiBalance = clamMaiPair.balanceOf(treasury_address)
   let dQuickMarketValue = BigDecimal.fromString('0')
 
-  if (
-    transaction.blockNumber.gt(
-      BigInt.fromString(UNI_MAI_CLAM_DQUICK_INVESTMENT_PAIR_BLOCK),
-    )
-  ) {
-    let pair = OtterQuickSwapInvestment.bind(
-      Address.fromString(UNI_MAI_CLAM_DQUICK_INVESTMENT_PAIR),
-    )
+  if (transaction.blockNumber.gt(BigInt.fromString(UNI_MAI_CLAM_DQUICK_INVESTMENT_PAIR_BLOCK))) {
+    let pair = OtterQuickSwapInvestment.bind(Address.fromString(UNI_MAI_CLAM_DQUICK_INVESTMENT_PAIR))
     let clamMaiInvestmentBalance = pair.balanceOf(treasury_address)
     clamMaiBalance = clamMaiBalance.plus(clamMaiInvestmentBalance)
     dQuickMarketValue = getdQuickMarketValue()
@@ -364,10 +300,7 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
     clamFrax_value = getPairUSD(clamFraxBalance, UNI_CLAM_FRAX_PAIR)
     clamFrax_rfv = getDiscountedPairUSD(clamFraxBalance, UNI_CLAM_FRAX_PAIR)
     clamFraxTotalLP = toDecimal(clamFraxPair.totalSupply(), 18)
-    if (
-      clamFraxTotalLP.gt(BigDecimal.fromString('0')) &&
-      clamFraxBalance.gt(BigInt.fromI32(0))
-    ) {
+    if (clamFraxTotalLP.gt(BigDecimal.fromString('0')) && clamFraxBalance.gt(BigInt.fromI32(0))) {
       clamFraxPOL = toDecimal(clamFraxBalance, 18)
         .div(clamFraxTotalLP)
         .times(BigDecimal.fromString('100'))
@@ -379,9 +312,7 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
   let clamWmatic_rfv = BigDecimal.fromString('0')
   let clamWmaticTotalLP = BigDecimal.fromString('0')
   let clamWmaticPOL = BigDecimal.fromString('0')
-  if (
-    transaction.blockNumber.gt(BigInt.fromString(UNI_CLAM_WMATIC_PAIR_BLOCK))
-  ) {
+  if (transaction.blockNumber.gt(BigInt.fromString(UNI_CLAM_WMATIC_PAIR_BLOCK))) {
     clamWmatic = clamWmaticPair.balanceOf(treasury_address)
     log.debug('clamMaticBalance {}', [clamWmatic.toString()])
 
@@ -390,10 +321,7 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
 
     clamWmatic_rfv = getDiscountedPairUSD(clamWmatic, UNI_CLAM_WMATIC_PAIR)
     clamWmaticTotalLP = toDecimal(clamWmaticPair.totalSupply(), 18)
-    if (
-      clamWmaticTotalLP.gt(BigDecimal.fromString('0')) &&
-      clamWmatic.gt(BigInt.fromI32(0))
-    ) {
+    if (clamWmaticTotalLP.gt(BigDecimal.fromString('0')) && clamWmatic.gt(BigInt.fromI32(0))) {
       clamWmaticPOL = toDecimal(clamWmatic, 18)
         .div(clamWmaticTotalLP)
         .times(BigDecimal.fromString('100'))
@@ -407,11 +335,7 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
 
   let qiMarketValue = BigDecimal.fromString('0')
   let maiUsdcQiInvestmentValueDecimal = BigDecimal.fromString('0')
-  if (
-    transaction.blockNumber.gt(
-      BigInt.fromString(UNI_MAI_USDC_QI_INVESTMENT_PAIR_BLOCK),
-    )
-  ) {
+  if (transaction.blockNumber.gt(BigInt.fromString(UNI_MAI_USDC_QI_INVESTMENT_PAIR_BLOCK))) {
     maiUsdcQiInvestmentValueDecimal = getMaiUsdcInvestmentValue()
     qiMarketValue = getQiMarketValue()
   }
@@ -421,11 +345,7 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
     qiWmaticMarketValue = getQiWmaticMarketValue()
   }
   let qiWmaticQiInvestmentMarketValue = BigDecimal.fromString('0')
-  if (
-    transaction.blockNumber.gt(
-      BigInt.fromString(UNI_QI_WMATIC_INVESTMENT_PAIR_BLOCK),
-    )
-  ) {
+  if (transaction.blockNumber.gt(BigInt.fromString(UNI_QI_WMATIC_INVESTMENT_PAIR_BLOCK))) {
     qiWmaticQiInvestmentMarketValue = getQiWmaticInvestmentMarketValue()
   }
 
@@ -452,20 +372,14 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
   log.debug('Treasury FRAX value {}', [toDecimal(fraxBalance, 18).toString()])
   log.debug('Treasury DAI value {}', [toDecimal(daiBalance, 18).toString()])
   log.debug('Treasury MAI/USDC value {}', [maiUsdcValueDecimal.toString()])
-  log.debug('Treasury Qi Investment MAI/USDC value {}', [
-    maiUsdcQiInvestmentValueDecimal.toString(),
-  ])
+  log.debug('Treasury Qi Investment MAI/USDC value {}', [maiUsdcQiInvestmentValueDecimal.toString()])
   log.debug('Treasury WMATIC value {}', [wmatic_value.toString()])
   log.debug('Treasury CLAM-MAI RFV {}', [clamMai_rfv.toString()])
   log.debug('Treasury CLAM-FRAX RFV {}', [clamFrax_rfv.toString()])
   log.debug('Treasury Qi Market value {}', [qiMarketValue.toString()])
   log.debug('Treasury dQuick Market value {}', [dQuickMarketValue.toString()])
-  log.debug('Treasury  Qi/WMATIC Market value {}', [
-    qiWmaticMarketValue.toString(),
-  ])
-  log.debug('Treasury Qi Investment Qi/WMATIC Market value {}', [
-    qiWmaticQiInvestmentMarketValue.toString(),
-  ])
+  log.debug('Treasury  Qi/WMATIC Market value {}', [qiWmaticMarketValue.toString()])
+  log.debug('Treasury Qi Investment Qi/WMATIC Market value {}', [qiWmaticQiInvestmentMarketValue.toString()])
 
   return [
     mv,
@@ -504,13 +418,8 @@ function getNextCLAMRebase(transaction: Transaction): BigDecimal {
   return next_distribution
 }
 
-function getAPY_Rebase(
-  sCLAM: BigDecimal,
-  distributedCLAM: BigDecimal,
-): BigDecimal[] {
-  let nextEpochRebase = distributedCLAM
-    .div(sCLAM)
-    .times(BigDecimal.fromString('100'))
+function getAPY_Rebase(sCLAM: BigDecimal, distributedCLAM: BigDecimal): BigDecimal[] {
+  let nextEpochRebase = distributedCLAM.div(sCLAM).times(BigDecimal.fromString('100'))
 
   let nextEpochRebase_number = Number.parseFloat(nextEpochRebase.toString())
   let currentAPY = Math.pow(nextEpochRebase_number / 100 + 1, 1095) * 100
@@ -549,19 +458,14 @@ function getAPY_PearlChest(nextEpochRebase: BigDecimal): BigDecimal[] {
   for (let i = 0; i < termsCount; i++) {
     let termAddress = lake.termAddresses(BigInt.fromI32(i))
     let term = lake.terms(termAddress)
-    let pearlBalance = Number.parseFloat(
-      toDecimal(pearl.balanceOf(term.value0), 18).toString(),
-    ) // note
+    let pearlBalance = Number.parseFloat(toDecimal(pearl.balanceOf(term.value0), 18).toString()) // note
     let boostPoint = (pearlBalance * term.value3) / 100 // multiplier
-    log.debug(
-      'pearl chest terms i = {}, boostPoint = {}, lockPeriod = {}, pearlBalance = {}',
-      [
-        i.toString(),
-        boostPoint.toString(),
-        term.value2.toString(),
-        pearlBalance.toString(),
-      ],
-    )
+    log.debug('pearl chest terms i = {}, boostPoint = {}, lockPeriod = {}, pearlBalance = {}', [
+      i.toString(),
+      boostPoint.toString(),
+      term.value2.toString(),
+      pearlBalance.toString(),
+    ])
 
     totalBoostPoint += boostPoint
     if (term.value2.equals(BigInt.fromI32(42))) {
@@ -591,52 +495,29 @@ function getAPY_PearlChest(nextEpochRebase: BigDecimal): BigDecimal[] {
     safePearlBalance.toString(),
   ])
   let safeHandAPY =
-    Math.pow(
-      1 +
-        (safeBoostPoint / totalBoostPoint) *
-          (totalNextReward / safePearlBalance) +
-        rebaseRate,
-      1095,
-    ) * 100
+    Math.pow(1 + (safeBoostPoint / totalBoostPoint) * (totalNextReward / safePearlBalance) + rebaseRate, 1095) * 100
   log.debug('pearl chest safeHandAPY = {}', [safeHandAPY.toString()])
   log.debug('pearl chest furryBoostPoint = {}, furryPearlBalance = {}', [
     furryBoostPoint.toString(),
     furryPearlBalance.toString(),
   ])
   let furryHandAPY =
-    Math.pow(
-      1 +
-        (furryBoostPoint / totalBoostPoint) *
-          (totalNextReward / furryPearlBalance) +
-        rebaseRate,
-      1095,
-    ) * 100
+    Math.pow(1 + (furryBoostPoint / totalBoostPoint) * (totalNextReward / furryPearlBalance) + rebaseRate, 1095) * 100
   log.debug('pearl chest furryHandAPY = {}', [furryHandAPY.toString()])
   log.debug('pearl chest stoneBoostPoint = {}, stonePearlBalance = {}', [
     stoneBoostPoint.toString(),
     stonePearlBalance.toString(),
   ])
   let stoneHandAPY =
-    Math.pow(
-      1 +
-        (stoneBoostPoint / totalBoostPoint) *
-          (totalNextReward / stonePearlBalance) +
-        rebaseRate,
-      1095,
-    ) * 100
+    Math.pow(1 + (stoneBoostPoint / totalBoostPoint) * (totalNextReward / stonePearlBalance) + rebaseRate, 1095) * 100
   log.debug('pearl chest stoneHandAPY = {}', [stoneHandAPY.toString()])
   log.debug('pearl chest diamonBoostPoint = {}, diamondPearlBalance = {}', [
     diamondBoostPoint.toString(),
     diamondPearlBalance.toString(),
   ])
   let diamondHandAPY =
-    Math.pow(
-      1 +
-        (diamondBoostPoint / totalBoostPoint) *
-          (totalNextReward / diamondPearlBalance) +
-        rebaseRate,
-      1095,
-    ) * 100
+    Math.pow(1 + (diamondBoostPoint / totalBoostPoint) * (totalNextReward / diamondPearlBalance) + rebaseRate, 1095) *
+    100
   log.debug('pearl chest diamondHandAPY = {}', [stoneHandAPY.toString()])
   return [
     BigDecimal.fromString(safeHandAPY.toString()),
@@ -658,9 +539,7 @@ function getRunway(totalSupply: BigDecimal, rfv: BigDecimal): BigDecimal[] {
   let runwayCurrent = BigDecimal.fromString('0')
 
   let rebaseRate = BigDecimal.fromString('0')
-  let distirbutor = OtterStakingDistributor.bind(
-    Address.fromString(STAKING_DISTRIBUTOR_CONTRACT),
-  )
+  let distirbutor = OtterStakingDistributor.bind(Address.fromString(STAKING_DISTRIBUTOR_CONTRACT))
 
   for (let i = 0; i < 10; i++) {
     let info = distirbutor.try_info(BigInt.fromI32(i))
@@ -680,20 +559,16 @@ function getRunway(totalSupply: BigDecimal, rfv: BigDecimal): BigDecimal[] {
   ) {
     let treasury_runway = Number.parseFloat(rfv.div(totalSupply).toString())
 
-    let runway2dot5k_num =
-      Math.log(treasury_runway) / Math.log(1 + 0.0029438) / 3
+    let runway2dot5k_num = Math.log(treasury_runway) / Math.log(1 + 0.0029438) / 3
     let runway5k_num = Math.log(treasury_runway) / Math.log(1 + 0.003579) / 3
-    let runway7dot5k_num =
-      Math.log(treasury_runway) / Math.log(1 + 0.0039507) / 3
+    let runway7dot5k_num = Math.log(treasury_runway) / Math.log(1 + 0.0039507) / 3
     let runway10k_num = Math.log(treasury_runway) / Math.log(1 + 0.00421449) / 3
     let runway20k_num = Math.log(treasury_runway) / Math.log(1 + 0.00485037) / 3
     let runway50k_num = Math.log(treasury_runway) / Math.log(1 + 0.00569158) / 3
     let runway70k_num = Math.log(treasury_runway) / Math.log(1 + 0.00600065) / 3
-    let runway100k_num =
-      Math.log(treasury_runway) / Math.log(1 + 0.00632839) / 3
+    let runway100k_num = Math.log(treasury_runway) / Math.log(1 + 0.00632839) / 3
     let nextEpochRebase_number = Number.parseFloat(rebaseRate.toString()) / 100
-    let runwayCurrent_num =
-      Math.log(treasury_runway) / Math.log(1 + nextEpochRebase_number) / 3
+    let runwayCurrent_num = Math.log(treasury_runway) / Math.log(1 + nextEpochRebase_number) / 3
 
     runway2dot5k = BigDecimal.fromString(runway2dot5k_num.toString())
     runway5k = BigDecimal.fromString(runway5k_num.toString())
@@ -706,17 +581,7 @@ function getRunway(totalSupply: BigDecimal, rfv: BigDecimal): BigDecimal[] {
     runwayCurrent = BigDecimal.fromString(runwayCurrent_num.toString())
   }
 
-  return [
-    runway2dot5k,
-    runway5k,
-    runway7dot5k,
-    runway10k,
-    runway20k,
-    runway50k,
-    runway70k,
-    runway100k,
-    runwayCurrent,
-  ]
+  return [runway2dot5k, runway5k, runway7dot5k, runway10k, runway20k, runway50k, runway70k, runway100k, runwayCurrent]
 }
 
 export function updateProtocolMetrics(transaction: Transaction): void {
@@ -763,10 +628,7 @@ export function updateProtocolMetrics(transaction: Transaction): void {
 
   // Rebase rewards, APY, rebase
   pm.nextDistributedClam = getNextCLAMRebase(transaction)
-  let apy_rebase = getAPY_Rebase(
-    pm.sClamCirculatingSupply,
-    pm.nextDistributedClam,
-  )
+  let apy_rebase = getAPY_Rebase(pm.sClamCirculatingSupply, pm.nextDistributedClam)
   pm.currentAPY = apy_rebase[0]
   pm.nextEpochRebase = apy_rebase[1]
   if (transaction.blockNumber.gt(BigInt.fromString(PEARL_CHEST_BLOCK))) {

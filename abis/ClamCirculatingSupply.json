@@ -1,8 +1,6 @@
 [
   {
-    "inputs": [
-      { "internalType": "address", "name": "_owner", "type": "address" }
-    ],
+    "inputs": [{ "internalType": "address", "name": "_owner", "type": "address" }],
     "stateMutability": "nonpayable",
     "type": "constructor"
   },
@@ -28,9 +26,7 @@
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "address", "name": "_clam", "type": "address" }
-    ],
+    "inputs": [{ "internalType": "address", "name": "_clam", "type": "address" }],
     "name": "initialize",
     "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
     "stateMutability": "nonpayable",
@@ -71,9 +67,7 @@
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "address", "name": "_owner", "type": "address" }
-    ],
+    "inputs": [{ "internalType": "address", "name": "_owner", "type": "address" }],
     "name": "transferOwnership",
     "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
     "stateMutability": "nonpayable",

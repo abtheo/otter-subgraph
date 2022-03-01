@@ -64,9 +64,7 @@
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "address", "name": "_recipient", "type": "address" }
-    ],
+    "inputs": [{ "internalType": "address", "name": "_recipient", "type": "address" }],
     "name": "claim",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -106,9 +104,7 @@
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "uint256", "name": "_amount", "type": "uint256" }
-    ],
+    "inputs": [{ "internalType": "uint256", "name": "_amount", "type": "uint256" }],
     "name": "giveLockBonus",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -143,9 +139,7 @@
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "address", "name": "newOwner_", "type": "address" }
-    ],
+    "inputs": [{ "internalType": "address", "name": "newOwner_", "type": "address" }],
     "name": "pushManagement",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -166,9 +160,7 @@
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "uint256", "name": "_amount", "type": "uint256" }
-    ],
+    "inputs": [{ "internalType": "uint256", "name": "_amount", "type": "uint256" }],
     "name": "returnLockBonus",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -196,9 +188,7 @@
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "uint256", "name": "_warmupPeriod", "type": "uint256" }
-    ],
+    "inputs": [{ "internalType": "uint256", "name": "_warmupPeriod", "type": "uint256" }],
     "name": "setWarmup",
     "outputs": [],
     "stateMutability": "nonpayable",

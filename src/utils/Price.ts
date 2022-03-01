@@ -1,8 +1,4 @@
-import {
-  UNI_CLAM_MAI_PAIR,
-  UNI_MAI_USDC_PAIR,
-  USDC_MATIC_AGGREGATOR,
-} from './Constants'
+import { UNI_CLAM_MAI_PAIR, UNI_MAI_USDC_PAIR, USDC_MATIC_AGGREGATOR } from './Constants'
 import { Address, BigDecimal, BigInt, log } from '@graphprotocol/graph-ts'
 import { UniswapV2Pair } from '../../generated/OtterTreasury/UniswapV2Pair'
 import { AggregatorV3InterfaceABI } from '../../generated/OtterTreasury/AggregatorV3InterfaceABI'
@@ -12,9 +8,7 @@ let BIG_DECIMAL_1E9 = BigDecimal.fromString('1e9')
 let BIG_DECIMAL_1E12 = BigDecimal.fromString('1e12')
 
 export function getWMATICUSDRate(): BigDecimal {
-  let pair = AggregatorV3InterfaceABI.bind(
-    Address.fromString(USDC_MATIC_AGGREGATOR),
-  )
+  let pair = AggregatorV3InterfaceABI.bind(Address.fromString(USDC_MATIC_AGGREGATOR))
   let wmaticPrice = pair.latestRoundData()
   return toDecimal(wmaticPrice.value1, 8)
 }
@@ -39,10 +33,7 @@ export function getCLAMUSDRate(): BigDecimal {
 }
 
 //(slp_treasury/slp_supply)*(2*sqrt(lp_dai * lp_ohm))
-export function getDiscountedPairUSD(
-  lp_amount: BigInt,
-  pair_address: string,
-): BigDecimal {
+export function getDiscountedPairUSD(lp_amount: BigInt, pair_address: string): BigDecimal {
   let pair = UniswapV2Pair.bind(Address.fromString(pair_address))
 
   let total_lp = pair.totalSupply()
@@ -59,10 +50,7 @@ export function getDiscountedPairUSD(
   return result
 }
 
-export function getPairUSD(
-  lp_amount: BigInt,
-  pair_address: string,
-): BigDecimal {
+export function getPairUSD(lp_amount: BigInt, pair_address: string): BigDecimal {
   let pair = UniswapV2Pair.bind(Address.fromString(pair_address))
   let total_lp = pair.totalSupply()
   let lp_token_0 = pair.getReserves().value1
@@ -74,10 +62,7 @@ export function getPairUSD(
   return ownedLP.times(total_lp_usd)
 }
 
-export function getPairWMATIC(
-  lp_amount: BigInt,
-  pair_adress: string,
-): BigDecimal {
+export function getPairWMATIC(lp_amount: BigInt, pair_adress: string): BigDecimal {
   let pair = UniswapV2Pair.bind(Address.fromString(pair_adress))
   let total_lp = pair.totalSupply()
   let lp_token_0 = pair.getReserves().value1

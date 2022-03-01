@@ -6,13 +6,7 @@ import {
   LogSupply as LogSupplyEvent,
   Transfer as TransferEvent,
 } from '../generated/StakedOtterClamERC20V2/StakedOtterClamERC20V2'
-import {
-  Approval,
-  LogRebase,
-  LogStakingContractUpdated,
-  LogSupply,
-  Transfer,
-} from '../generated/schema'
+import { Approval, LogRebase, LogStakingContractUpdated, LogSupply, Transfer } from '../generated/schema'
 import { log } from '@graphprotocol/graph-ts'
 import { loadOrCreateTransaction } from './utils/Transactions'
 import { updateProtocolMetrics } from './utils/ProtocolMetrics'
@@ -39,9 +33,7 @@ export function handleLogRebase(event: LogRebaseEvent): void {
   entity.save()
 }
 
-export function handleLogStakingContractUpdated(
-  event: LogStakingContractUpdatedEvent,
-): void {
+export function handleLogStakingContractUpdated(event: LogStakingContractUpdatedEvent): void {
   let transaction = loadOrCreateTransaction(event.transaction, event.block)
   let entity = new LogStakingContractUpdated(transaction.id)
   entity.stakingContract = event.params.stakingContract

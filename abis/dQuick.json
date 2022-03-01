@@ -1,8 +1,6 @@
 [
   {
-    "inputs": [
-      { "internalType": "contract IERC20", "name": "_quick", "type": "address" }
-    ],
+    "inputs": [{ "internalType": "contract IERC20", "name": "_quick", "type": "address" }],
     "stateMutability": "nonpayable",
     "type": "constructor"
   },
@@ -57,24 +55,16 @@
     "type": "event"
   },
   {
-    "inputs": [
-      { "internalType": "address", "name": "_account", "type": "address" }
-    ],
+    "inputs": [{ "internalType": "address", "name": "_account", "type": "address" }],
     "name": "QUICKBalance",
-    "outputs": [
-      { "internalType": "uint256", "name": "quickAmount_", "type": "uint256" }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "quickAmount_", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "uint256", "name": "_quickAmount", "type": "uint256" }
-    ],
+    "inputs": [{ "internalType": "uint256", "name": "_quickAmount", "type": "uint256" }],
     "name": "QUICKForDQUICK",
-    "outputs": [
-      { "internalType": "uint256", "name": "dQuickAmount_", "type": "uint256" }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "dQuickAmount_", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -99,22 +89,16 @@
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "address", "name": "account", "type": "address" }
-    ],
+    "inputs": [{ "internalType": "address", "name": "account", "type": "address" }],
     "name": "balanceOf",
     "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "uint256", "name": "_dQuickAmount", "type": "uint256" }
-    ],
+    "inputs": [{ "internalType": "uint256", "name": "_dQuickAmount", "type": "uint256" }],
     "name": "dQUICKForQUICK",
-    "outputs": [
-      { "internalType": "uint256", "name": "quickAmount_", "type": "uint256" }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "quickAmount_", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -140,9 +124,7 @@
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "uint256", "name": "_quickAmount", "type": "uint256" }
-    ],
+    "inputs": [{ "internalType": "uint256", "name": "_quickAmount", "type": "uint256" }],
     "name": "enter",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -159,9 +141,7 @@
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "uint256", "name": "_dQuickAmount", "type": "uint256" }
-    ],
+    "inputs": [{ "internalType": "uint256", "name": "_dQuickAmount", "type": "uint256" }],
     "name": "leave",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -177,9 +157,7 @@
   {
     "inputs": [],
     "name": "quick",
-    "outputs": [
-      { "internalType": "contract IERC20", "name": "", "type": "address" }
-    ],
+    "outputs": [{ "internalType": "contract IERC20", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   },

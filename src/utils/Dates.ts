@@ -9,4 +9,3 @@ export function hourFromTimestamp(timestamp: BigInt): string {
   let day_ts = timestamp.toI32() - (timestamp.toI32() % 3600)
   return day_ts.toString()
 }
-

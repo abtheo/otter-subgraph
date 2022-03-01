@@ -193,9 +193,7 @@
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "uint256", "name": "gons", "type": "uint256" }
-    ],
+    "inputs": [{ "internalType": "uint256", "name": "gons", "type": "uint256" }],
     "name": "balanceForGons",
     "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
@@ -244,9 +242,7 @@
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "uint256", "name": "amount", "type": "uint256" }
-    ],
+    "inputs": [{ "internalType": "uint256", "name": "amount", "type": "uint256" }],
     "name": "gonsForBalance",
     "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
@@ -297,9 +293,7 @@
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "address", "name": "owner", "type": "address" }
-    ],
+    "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }],
     "name": "nonces",
     "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
@@ -335,9 +329,7 @@
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "address", "name": "newOwner_", "type": "address" }
-    ],
+    "inputs": [{ "internalType": "address", "name": "newOwner_", "type": "address" }],
     "name": "pushManagement",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -388,9 +380,7 @@
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "uint256", "name": "_INDEX", "type": "uint256" }
-    ],
+    "inputs": [{ "internalType": "uint256", "name": "_INDEX", "type": "uint256" }],
     "name": "setIndex",
     "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
     "stateMutability": "nonpayable",
