@@ -1,58 +1,63 @@
 import { Address, BigDecimal, BigInt, log } from '@graphprotocol/graph-ts'
-import { OtterClamERC20V2 } from '../../generated/OtterTreasury/OtterClamERC20V2'
-import { StakedOtterClamERC20V2 } from '../../generated/StakedOtterClamERC20V2/StakedOtterClamERC20V2'
-import { OtterStaking } from '../../generated/OtterTreasury/OtterStaking'
 import { ClamCirculatingSupply } from '../../generated/OtterTreasury/ClamCirculatingSupply'
-import { ERC20 } from '../../generated/OtterTreasury/ERC20'
-import { UniswapV2Pair } from '../../generated/OtterTreasury/UniswapV2Pair'
 import { dQuick } from '../../generated/OtterTreasury/dQuick'
+import { ERC20 } from '../../generated/OtterTreasury/ERC20'
+import { OtterClamERC20V2 } from '../../generated/OtterTreasury/OtterClamERC20V2'
+import { OtterLake } from '../../generated/OtterTreasury/OtterLake'
+import { OtterPearlERC20 } from '../../generated/OtterTreasury/OtterPearlERC20'
 import { OtterQiDAOInvestment } from '../../generated/OtterTreasury/OtterQiDAOInvestment'
 import { OtterQuickSwapInvestment } from '../../generated/OtterTreasury/OtterQuickSwapInvestment'
-import { OtterLake } from '../../generated/OtterTreasury/OtterLake'
-import { PearlNote } from '../../generated/OtterTreasury/PearlNote'
-import { OtterPearlERC20 } from '../../generated/OtterTreasury/OtterPearlERC20'
+import { OtterStaking } from '../../generated/OtterTreasury/OtterStaking'
 import { OtterStakingDistributor } from '../../generated/OtterTreasury/OtterStakingDistributor'
-
+import { UniswapV2Pair } from '../../generated/OtterTreasury/UniswapV2Pair'
 import { ProtocolMetric, Transaction } from '../../generated/schema'
+import { StakedOtterClamERC20V2 } from '../../generated/StakedOtterClamERC20V2/StakedOtterClamERC20V2'
 import {
   CIRCULATING_SUPPLY_CONTRACT,
   CIRCULATING_SUPPLY_CONTRACT_BLOCK,
-  MAI_ERC20_CONTRACT,
-  FRAX_ERC20_CONTRACT,
-  DAI_ERC20_CONTRACT,
   CLAM_ERC20_CONTRACT,
-  SCLAM_ERC20_CONTRACT,
+  DAI_ERC20_CONTRACT,
+  DQUICK_CONTRACT,
+  FRAX_ERC20_CONTRACT,
+  MAI_ERC20_CONTRACT,
   MATIC_ERC20_CONTRACT,
+  OTTER_LAKE_ADDRESS,
+  PEARL_CHEST_BLOCK,
   PEARL_ERC20_CONTRACT,
   QI_ERC20_CONTRACT,
-  DQUICK_CONTRACT,
+  SCLAM_ERC20_CONTRACT,
   STAKING_CONTRACT,
   STAKING_DISTRIBUTOR_CONTRACT,
   TREASURY_ADDRESS,
-  UNI_CLAM_MAI_PAIR,
   UNI_CLAM_FRAX_PAIR,
   UNI_CLAM_FRAX_PAIR_BLOCK,
+  UNI_CLAM_MAI_PAIR,
   UNI_CLAM_WMATIC_PAIR,
   UNI_CLAM_WMATIC_PAIR_BLOCK,
+  UNI_MAI_CLAM_DQUICK_INVESTMENT_PAIR,
+  UNI_MAI_CLAM_DQUICK_INVESTMENT_PAIR_BLOCK,
   UNI_MAI_USDC_PAIR,
   UNI_MAI_USDC_PAIR_BLOCK,
   UNI_MAI_USDC_QI_INVESTMENT_PAIR,
   UNI_MAI_USDC_QI_INVESTMENT_PAIR_BLOCK,
-  UNI_MAI_CLAM_DQUICK_INVESTMENT_PAIR,
-  UNI_MAI_CLAM_DQUICK_INVESTMENT_PAIR_BLOCK,
+  UNI_PEARL_WMATIC_PAIR,
+  UNI_PEARL_WMATIC_PAIR_BLOCK,
   UNI_QI_WMATIC_INVESTMENT_PAIR,
   UNI_QI_WMATIC_INVESTMENT_PAIR_BLOCK,
   UNI_QI_WMATIC_PAIR,
   UNI_QI_WMATIC_PAIR_BLOCK,
-  UNI_PEARL_WMATIC_PAIR,
-  UNI_PEARL_WMATIC_PAIR_BLOCK,
-  UNI_DQUICK_WMATIC_PAIR,
-  OTTER_LAKE_ADDRESS,
-  PEARL_CHEST_BLOCK,
 } from './Constants'
 import { dayFromTimestamp } from './Dates'
 import { toDecimal } from './Decimals'
-import { getCLAMUSDRate, getDiscountedPairUSD, getPairUSD, getWMATICUSDRate, getPairWMATIC } from './Price'
+import {
+  getClamUsdRate,
+  getDiscountedPairUSD,
+  getQuickUsdRate,
+  getPairUSD,
+  getPairWMATIC,
+  getQiUsdRate,
+  getwMaticUsdRate,
+} from './Price'
 
 export function loadOrCreateProtocolMetric(timestamp: BigInt): ProtocolMetric {
   let dayTimestamp = dayFromTimestamp(timestamp)
@@ -183,7 +188,7 @@ function getQiWmaticMarketValue(): BigDecimal {
 
   let value = wmatic
     .plus(wmaticPerQi.times(qi))
-    .times(getWMATICUSDRate())
+    .times(getwMaticUsdRate())
     .times(balance)
     .div(total)
   log.debug('pair WMATIC/Qi value {}', [value.toString()])
@@ -206,7 +211,7 @@ function getPearlWmaticMarketValue(): BigDecimal {
 
   let value = wmatic
     .plus(wmaticPerPearl.times(pearl))
-    .times(getWMATICUSDRate())
+    .times(getwMaticUsdRate())
     .times(balance)
     .div(total)
   log.info('pair WMATIC/PEARL value {}', [value.toString()])
@@ -229,7 +234,7 @@ function getQiWmaticInvestmentMarketValue(): BigDecimal {
 
   let value = wmatic
     .plus(wmaticPerQi.times(qi))
-    .times(getWMATICUSDRate())
+    .times(getwMaticUsdRate())
     .times(balance)
     .div(total)
   log.debug('investment WMATIC/Qi value {}', [value.toString()])
@@ -237,18 +242,8 @@ function getQiWmaticInvestmentMarketValue(): BigDecimal {
 }
 
 export function getdQuickMarketValue(): BigDecimal {
-  let lp = UniswapV2Pair.bind(Address.fromString(UNI_DQUICK_WMATIC_PAIR))
-  let reserves = lp.getReserves()
-  let wmatic = toDecimal(reserves.value0, 18)
-  let quick = toDecimal(reserves.value1, 18)
-  let wmaticPerQuick = wmatic.div(quick)
-  let usdPerQuick = wmaticPerQuick.times(getWMATICUSDRate())
-  log.debug('wmatic = {}, quick = {}, 1 quick = {} wmatic = {} USD', [
-    wmatic.toString(),
-    quick.toString(),
-    wmaticPerQuick.toString(),
-    usdPerQuick.toString(),
-  ])
+  let usdPerQuick = getQuickUsdRate()
+  log.debug('1 Quick = {} USD', [usdPerQuick.toString()])
 
   let token = dQuick.bind(Address.fromString(DQUICK_CONTRACT))
   let quickBalance = toDecimal(token.QUICKBalance(Address.fromString(TREASURY_ADDRESS)), 18)
@@ -259,17 +254,8 @@ export function getdQuickMarketValue(): BigDecimal {
 }
 
 export function getQiMarketValue(): BigDecimal {
-  let lp = UniswapV2Pair.bind(Address.fromString(UNI_QI_WMATIC_PAIR))
-  let wmatic = toDecimal(lp.getReserves().value0, 18)
-  let qi = toDecimal(lp.getReserves().value1, 18)
-  let wmaticPerQi = wmatic.div(qi)
-  let usdPerQi = wmaticPerQi.times(getWMATICUSDRate())
-  log.debug('wmatic = {}, qi = {}, 1 qi = {} wmatic = {} USD', [
-    wmatic.toString(),
-    qi.toString(),
-    wmaticPerQi.toString(),
-    usdPerQi.toString(),
-  ])
+  let usdPerQi = getQiUsdRate()
+  log.debug('1 Qi = {} USD', [usdPerQi.toString()])
 
   let qiERC20 = ERC20.bind(Address.fromString(QI_ERC20_CONTRACT))
   let qiBalance = toDecimal(qiERC20.balanceOf(Address.fromString(TREASURY_ADDRESS)), 18)
@@ -295,7 +281,7 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
   let daiBalance = daiERC20.balanceOf(treasury_address)
 
   let wmaticBalance = maticERC20.balanceOf(treasury_address)
-  let wmatic_value = toDecimal(wmaticBalance, 18).times(getWMATICUSDRate())
+  let wmatic_value = toDecimal(wmaticBalance, 18).times(getwMaticUsdRate())
 
   //CLAM-MAI & Investment to Quickswap
   let clamMaiBalance = clamMaiPair.balanceOf(treasury_address)
@@ -631,7 +617,7 @@ export function updateProtocolMetrics(transaction: Transaction): void {
   pm.sClamCirculatingSupply = getSClamSupply(transaction)
 
   //CLAM Price
-  pm.clamPrice = getCLAMUSDRate()
+  pm.clamPrice = getClamUsdRate()
 
   //CLAM Market Cap
   pm.marketCap = pm.clamCirculatingSupply.times(pm.clamPrice)
