@@ -96,7 +96,6 @@ export function loadOrCreateProtocolMetric(timestamp: BigInt): ProtocolMetric {
     protocolMetric.treasuryDquickMarketValue = BigDecimal.fromString('0')
     protocolMetric.treasuryQiWmaticMarketValue = BigDecimal.fromString('0')
     protocolMetric.treasuryQiWmaticQiInvestmentMarketValue = BigDecimal.fromString('0')
-    protocolMetric.treasuryPearlWmaticMarketValue = BigDecimal.fromString('0')
     protocolMetric.treasuryOtterClamQiMarketValue = BigDecimal.fromString('0')
     protocolMetric.treasuryClamMaiPOL = BigDecimal.fromString('0')
     protocolMetric.treasuryClamFraxPOL = BigDecimal.fromString('0')
@@ -391,7 +390,12 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
     .plus(maiUsdcValueDecimal)
     .plus(maiUsdcQiInvestmentValueDecimal)
 
-  let lpValue = clamMai_value.plus(clamFrax_value).plus(clamWmatic_value)
+  let lpValue = clamMai_value
+    .plus(clamFrax_value)
+    .plus(clamWmatic_value)
+    .plus(qiWmaticMarketValue)
+    .plus(qiWmaticQiInvestmentMarketValue)
+    .plus(pearlWmaticMarketValue)
   let rfvLpValue = clamMai_rfv.plus(clamFrax_rfv).plus(clamWmatic_rfv)
 
   let mv = stableValueDecimal
@@ -399,9 +403,6 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
     .plus(wmatic_value)
     .plus(qiMarketValue)
     .plus(dQuickMarketValue)
-    .plus(qiWmaticMarketValue)
-    .plus(qiWmaticQiInvestmentMarketValue)
-    .plus(pearlWmaticMarketValue)
     .plus(ocQiMarketValue)
   let rfv = stableValueDecimal.plus(rfvLpValue)
 
@@ -438,12 +439,11 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
     // treasuryDaiRiskFreeValue
     toDecimal(daiBalance, 18),
     clamWmatic_rfv.plus(wmatic_value),
-    clamWmatic_value.plus(wmatic_value),
+    clamWmatic_value.plus(wmatic_value).plus(pearlWmaticMarketValue),
     qiMarketValue,
     dQuickMarketValue,
     qiWmaticMarketValue,
     qiWmaticQiInvestmentMarketValue,
-    pearlWmaticMarketValue,
     ocQiMarketValue,
     // POL
     clamMaiPOL,
@@ -665,11 +665,10 @@ export function updateProtocolMetrics(transaction: Transaction): void {
   pm.treasuryDquickMarketValue = mv_rfv[12]
   pm.treasuryQiWmaticMarketValue = mv_rfv[13]
   pm.treasuryQiWmaticQiInvestmentMarketValue = mv_rfv[14]
-  pm.treasuryPearlWmaticMarketValue = mv_rfv[15]
-  pm.treasuryOtterClamQiMarketValue = mv_rfv[16]
-  pm.treasuryClamMaiPOL = mv_rfv[17]
-  pm.treasuryClamFraxPOL = mv_rfv[18]
-  pm.treasuryClamWmaticPOL = mv_rfv[19]
+  pm.treasuryOtterClamQiMarketValue = mv_rfv[15]
+  pm.treasuryClamMaiPOL = mv_rfv[16]
+  pm.treasuryClamFraxPOL = mv_rfv[17]
+  pm.treasuryClamWmaticPOL = mv_rfv[18]
 
   // Rebase rewards, APY, rebase
   pm.nextDistributedClam = getNextCLAMRebase(transaction)
