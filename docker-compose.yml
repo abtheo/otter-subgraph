@@ -17,7 +17,7 @@ services:
       postgres_pass: let-me-in
       postgres_db: graph-node
       ipfs: 'ipfs:5001'
-      ethereum: 'matic:https://polygon-mainnet.infura.io/v3/ee6a4c09f86c44e4ab4710f9ba7e8263'
+      ethereum: 'matic:https://polygon-rpc.com'
       GRAPH_LOG: info
   ipfs:
     image: ipfs/go-ipfs:v0.4.23
