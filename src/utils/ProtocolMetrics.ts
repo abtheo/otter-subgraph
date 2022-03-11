@@ -10,6 +10,7 @@ import { OtterQuickSwapInvestment } from '../../generated/OtterTreasury/OtterQui
 import { OtterStaking } from '../../generated/OtterTreasury/OtterStaking'
 import { OtterStakingDistributor } from '../../generated/OtterTreasury/OtterStakingDistributor'
 import { UniswapV2Pair } from '../../generated/OtterTreasury/UniswapV2Pair'
+import { CurveMai3poolContract } from '../../generated/OtterTreasury/CurveMai3poolContract'
 import { ProtocolMetric, Transaction } from '../../generated/schema'
 import { StakedOtterClamERC20V2 } from '../../generated/StakedOtterClamERC20V2/StakedOtterClamERC20V2'
 import {
@@ -48,6 +49,10 @@ import {
   UNI_QI_WMATIC_INVESTMENT_PAIR_BLOCK,
   UNI_QI_WMATIC_PAIR,
   UNI_QI_WMATIC_PAIR_BLOCK,
+  CURVE_MAI_3POOL_PAIR,
+  CURVE_MAI_3POOL_PAIR_BLOCK,
+  CURVE_MAI_3POOL_INVESTMENT_PAIR,
+  CURVE_MAI_3POOL_INVESTMENT_PAIR_BLOCK,
 } from './Constants'
 import { dayFromTimestamp } from './Dates'
 import { toDecimal } from './Decimals'
@@ -135,6 +140,29 @@ function getSClamSupply(transaction: Transaction): BigDecimal {
   return sclam_supply
 }
 
+function getMai3poolValue(): BigDecimal {
+  let mai3pool = CurveMai3poolContract.bind(Address.fromString(CURVE_MAI_3POOL_PAIR))
+  let balance = toDecimal(mai3pool.balanceOf(Address.fromString(TREASURY_ADDRESS)), 18)
+  let price = toDecimal(mai3pool.get_virtual_price(), 18)
+  let value = balance.times(price)
+  log.debug('MAI3Pool balance {}, price {}, value {}', [balance.toString(), price.toString(), value.toString()])
+  return value
+}
+
+function getMai3poolInvestmentValue(): BigDecimal {
+  let mai3pool = CurveMai3poolContract.bind(Address.fromString(CURVE_MAI_3POOL_PAIR))
+  let investment = ERC20.bind(Address.fromString(CURVE_MAI_3POOL_INVESTMENT_PAIR))
+  let balance = toDecimal(investment.balanceOf(Address.fromString(TREASURY_ADDRESS)), 18)
+  let price = toDecimal(mai3pool.get_virtual_price(), 18)
+  let value = balance.times(price)
+  log.debug('MAI3Pool investment balance {}, price {}, value {}', [
+    balance.toString(),
+    price.toString(),
+    value.toString(),
+  ])
+  return value
+}
+
 function getMaiUsdcValue(): BigDecimal {
   let pair = UniswapV2Pair.bind(Address.fromString(UNI_MAI_USDC_PAIR))
 
@@ -202,12 +230,12 @@ function getPearlWmaticMarketValue(): BigDecimal {
   let reserves = pair.getReserves()
   let wmatic = toDecimal(reserves.value0, 18)
   let pearl = toDecimal(reserves.value1, 18)
-  log.info('pair pearl {}, wmatic {}', [pearl.toString(), wmatic.toString()])
+  log.debug('pair pearl {}, wmatic {}', [pearl.toString(), wmatic.toString()])
 
   let balance = pair.balanceOf(Address.fromString(TREASURY_ADDRESS)).toBigDecimal()
 
   let total = pair.totalSupply().toBigDecimal()
-  log.info('pair WMATIC/PEARL LP balance {}, total {}', [balance.toString(), total.toString()])
+  log.debug('pair WMATIC/PEARL LP balance {}, total {}', [balance.toString(), total.toString()])
 
   let wmaticPerPearl = wmatic.div(pearl)
 
@@ -216,7 +244,7 @@ function getPearlWmaticMarketValue(): BigDecimal {
     .times(getwMaticUsdRate())
     .times(balance)
     .div(total)
-  log.info('pair WMATIC/PEARL value {}', [value.toString()])
+  log.debug('pair WMATIC/PEARL value {}', [value.toString()])
   return value
 }
 
@@ -354,6 +382,16 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
     }
   }
 
+  let mai3poolValueDecimal = BigDecimal.fromString('0')
+  if (transaction.blockNumber.ge(BigInt.fromString(CURVE_MAI_3POOL_PAIR_BLOCK))) {
+    mai3poolValueDecimal = getMai3poolValue()
+  }
+
+  let mai3poolInvestmentValueDecimal = BigDecimal.fromString('0')
+  if (transaction.blockNumber.ge(BigInt.fromString(CURVE_MAI_3POOL_INVESTMENT_PAIR_BLOCK))) {
+    mai3poolInvestmentValueDecimal = getMai3poolInvestmentValue()
+  }
+
   let maiUsdcValueDecimal = BigDecimal.fromString('0')
   if (transaction.blockNumber.ge(BigInt.fromString(UNI_MAI_USDC_PAIR_BLOCK))) {
     maiUsdcValueDecimal = getMaiUsdcValue()
@@ -389,6 +427,8 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
   let stableValueDecimal = toDecimal(stableValue, 18)
     .plus(maiUsdcValueDecimal)
     .plus(maiUsdcQiInvestmentValueDecimal)
+    .plus(mai3poolValueDecimal)
+    .plus(mai3poolInvestmentValueDecimal)
 
   let lpValue = clamMai_value
     .plus(clamFrax_value)
@@ -428,6 +468,8 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
     rfv,
     maiUsdcValueDecimal,
     maiUsdcQiInvestmentValueDecimal,
+    mai3poolValueDecimal,
+    mai3poolInvestmentValueDecimal,
     // treasuryMaiRiskFreeValue = MAI RFV * MAI + aMAI
     clamMai_rfv.plus(toDecimal(maiBalance, 18)),
     // treasuryMaiMarketValue = MAI LP * MAI + aMAI
@@ -654,21 +696,23 @@ export function updateProtocolMetrics(transaction: Transaction): void {
   pm.treasuryRiskFreeValue = mv_rfv[1]
   pm.treasuryMaiUsdcRiskFreeValue = mv_rfv[2]
   pm.treasuryMaiUsdcQiInvestmentRiskFreeValue = mv_rfv[3]
-  pm.treasuryMaiRiskFreeValue = mv_rfv[4]
-  pm.treasuryMaiMarketValue = mv_rfv[5]
-  pm.treasuryFraxRiskFreeValue = mv_rfv[6]
-  pm.treasuryFraxMarketValue = mv_rfv[7]
-  pm.treasuryDaiRiskFreeValue = mv_rfv[8]
-  pm.treasuryWmaticRiskFreeValue = mv_rfv[9]
-  pm.treasuryWmaticMarketValue = mv_rfv[10]
-  pm.treasuryQiMarketValue = mv_rfv[11]
-  pm.treasuryDquickMarketValue = mv_rfv[12]
-  pm.treasuryQiWmaticMarketValue = mv_rfv[13]
-  pm.treasuryQiWmaticQiInvestmentMarketValue = mv_rfv[14]
-  pm.treasuryOtterClamQiMarketValue = mv_rfv[15]
-  pm.treasuryClamMaiPOL = mv_rfv[16]
-  pm.treasuryClamFraxPOL = mv_rfv[17]
-  pm.treasuryClamWmaticPOL = mv_rfv[18]
+  pm.treasuryCurveMai3PoolValue = mv_rfv[4]
+  pm.treasuryCurveMai3PoolInvestmentValue = mv_rfv[5]
+  pm.treasuryMaiRiskFreeValue = mv_rfv[6]
+  pm.treasuryMaiMarketValue = mv_rfv[7]
+  pm.treasuryFraxRiskFreeValue = mv_rfv[8]
+  pm.treasuryFraxMarketValue = mv_rfv[9]
+  pm.treasuryDaiRiskFreeValue = mv_rfv[10]
+  pm.treasuryWmaticRiskFreeValue = mv_rfv[11]
+  pm.treasuryWmaticMarketValue = mv_rfv[12]
+  pm.treasuryQiMarketValue = mv_rfv[13]
+  pm.treasuryDquickMarketValue = mv_rfv[14]
+  pm.treasuryQiWmaticMarketValue = mv_rfv[15]
+  pm.treasuryQiWmaticQiInvestmentMarketValue = mv_rfv[16]
+  pm.treasuryOtterClamQiMarketValue = mv_rfv[17]
+  pm.treasuryClamMaiPOL = mv_rfv[18]
+  pm.treasuryClamFraxPOL = mv_rfv[19]
+  pm.treasuryClamWmaticPOL = mv_rfv[20]
 
   // Rebase rewards, APY, rebase
   pm.nextDistributedClam = getNextCLAMRebase(transaction)

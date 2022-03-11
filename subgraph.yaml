@@ -53,6 +53,8 @@ dataSources:
           file: ./abis/PearlNote.json
         - name: OtterPearlERC20
           file: ./abis/OtterPearlERC20.json
+        - name: CurveMai3poolContract
+          file: ./abis/CurveMai3poolContract.json
         # --------------------
       eventHandlers:
         - event: Approval(indexed address,indexed address,uint256)
@@ -125,6 +127,8 @@ dataSources:
           file: ./abis/PearlNote.json
         - name: OtterPearlERC20
           file: ./abis/OtterPearlERC20.json
+        - name: CurveMai3poolContract
+          file: ./abis/CurveMai3poolContract.json
         # --------------------
       eventHandlers:
         - event: ChangeActivated(indexed uint8,address,bool)
