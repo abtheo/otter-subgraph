@@ -1,6 +1,7 @@
 import { Address, BigDecimal, BigInt, log } from '@graphprotocol/graph-ts'
 import { ClamCirculatingSupply } from '../../generated/OtterTreasury/ClamCirculatingSupply'
 import { dQuick } from '../../generated/OtterTreasury/dQuick'
+import { xTetuQi } from '../../generated/OtterTreasury/xTetuQi'
 import { ERC20 } from '../../generated/OtterTreasury/ERC20'
 import { OtterClamERC20V2 } from '../../generated/OtterTreasury/OtterClamERC20V2'
 import { OtterLake } from '../../generated/OtterTreasury/OtterLake'
@@ -288,14 +289,11 @@ export function getdQuickMarketValue(): BigDecimal {
   return marketValue
 }
 
-export function getQiMarketValue(addr: Address): BigDecimal {
+export function getQiMarketValue(balance: BigDecimal): BigDecimal {
   let usdPerQi = getQiUsdRate()
   log.debug('1 Qi = {} USD', [usdPerQi.toString()])
 
-  let qiERC20 = ERC20.bind(addr)
-  let qiBalance = toDecimal(qiERC20.balanceOf(Address.fromString(TREASURY_ADDRESS)), qiERC20.decimals())
-  log.debug('qi balance of treasury = {}', [qiBalance.toString()])
-  let marketValue = qiBalance.times(usdPerQi)
+  let marketValue = balance.times(usdPerQi)
   log.debug('qi marketValue = {}', [marketValue.toString()])
   return marketValue
 }
@@ -317,6 +315,10 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
   let fraxERC20 = ERC20.bind(Address.fromString(FRAX_ERC20_CONTRACT))
   let daiERC20 = ERC20.bind(Address.fromString(DAI_ERC20_CONTRACT))
   let maticERC20 = ERC20.bind(Address.fromString(MATIC_ERC20_CONTRACT))
+  let qiERC20 = ERC20.bind(Address.fromString(QI_ERC20_CONTRACT))
+  let tetuQiERC20 = ERC20.bind(Address.fromString(TETU_QI_CONTRACT))
+
+  let xTetuQiERC20 = xTetuQi.bind(Address.fromString(XTETU_QI_CONTRACT))
 
   let clamMaiPair = UniswapV2Pair.bind(Address.fromString(UNI_CLAM_MAI_PAIR))
   let clamFraxPair = UniswapV2Pair.bind(Address.fromString(UNI_CLAM_FRAX_PAIR))
@@ -406,15 +408,24 @@ function getMV_RFV(transaction: Transaction): BigDecimal[] {
   let maiUsdcQiInvestmentValueDecimal = BigDecimal.fromString('0')
   if (transaction.blockNumber.gt(BigInt.fromString(UNI_MAI_USDC_QI_INVESTMENT_PAIR_BLOCK))) {
     maiUsdcQiInvestmentValueDecimal = getMaiUsdcInvestmentValue()
-    qiMarketValue = getQiMarketValue(Address.fromString(QI_ERC20_CONTRACT))
+    qiMarketValue = getQiMarketValue(
+      toDecimal(qiERC20.balanceOf(Address.fromString(TREASURY_ADDRESS)), qiERC20.decimals()),
+    )
   }
 
   let tetuQiMarketValue = BigDecimal.fromString('0')
   if (transaction.blockNumber.gt(BigInt.fromString(TETU_QI_START_BLOCK))) {
-    tetuQiMarketValue = tetuQiMarketValue.plus(getQiMarketValue(Address.fromString(TETU_QI_CONTRACT)))
+    tetuQiMarketValue = tetuQiMarketValue.plus(
+      getQiMarketValue(toDecimal(tetuQiERC20.balanceOf(Address.fromString(TREASURY_ADDRESS)), tetuQiERC20.decimals())),
+    )
   }
   if (transaction.blockNumber.gt(BigInt.fromString(XTETU_QI_START_BLOCK))) {
-    tetuQiMarketValue = tetuQiMarketValue.plus(getQiMarketValue(Address.fromString(XTETU_QI_CONTRACT)))
+    tetuQiMarketValue = tetuQiMarketValue.plus(
+      toDecimal(
+        xTetuQiERC20.underlyingBalanceWithInvestmentForHolder(Address.fromString(TREASURY_ADDRESS)),
+        xTetuQiERC20.decimals(),
+      ),
+    )
   }
 
   let qiWmaticMarketValue = BigDecimal.fromString('0')
