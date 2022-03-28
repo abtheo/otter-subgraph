@@ -156,3 +156,25 @@ dataSources:
         - event: Withdrawal(indexed address,uint256,uint256)
           handler: handleWithdrawal
       file: ./src/OtterTreasury.ts
+
+  - kind: ethereum/contract
+    name: Otto
+    network: matic
+    source:
+      address: '0x6e8A9Cb6B1E73e9fCe3FD3c68b5af9728F708eB7'
+      abi: Otto
+      startBlock: 26102382
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Transaction
+      abis:
+        - name: Otto
+          file: ./abis/Otto.json
+        # --------------------
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: ./src/Otto.ts
