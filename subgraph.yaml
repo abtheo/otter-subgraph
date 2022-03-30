@@ -173,6 +173,8 @@ dataSources:
       abis:
         - name: Otto
           file: ./abis/Otto.json
+        - name: OttoV2
+          file: ./abis/OttoV2.json
         # --------------------
       eventHandlers:
         - event: Transfer(indexed address,indexed address,indexed uint256)
