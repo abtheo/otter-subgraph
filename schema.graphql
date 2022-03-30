@@ -201,3 +201,21 @@ type ProtocolMetric @entity {
   treasuryClamFraxPOL: BigDecimal!
   treasuryClamWmaticPOL: BigDecimal!
 }
+
+enum PortalStatus {
+  UNOPENED
+  OPENED
+  SUMMONED
+}
+
+type Otto @entity {
+  id: ID!
+  tokenId: BigInt!
+  tokenURI: String!
+  owner: Bytes!
+  portalStatus: PortalStatus!
+  canOpenAt: BigInt!
+  summonAt: BigInt!
+  mintAt: BigInt!
+  updateAt: BigInt!
+}
