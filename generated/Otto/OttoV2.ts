@@ -325,16 +325,18 @@ export class OttoV2__infosResult {
   value1: BigInt;
   value2: BigInt;
   value3: BigInt;
-  value4: i32;
-  value5: boolean;
+  value4: BigInt;
+  value5: i32;
+  value6: boolean;
 
   constructor(
     value0: BigInt,
     value1: BigInt,
     value2: BigInt,
     value3: BigInt,
-    value4: i32,
-    value5: boolean
+    value4: BigInt,
+    value5: i32,
+    value6: boolean
   ) {
     this.value0 = value0;
     this.value1 = value1;
@@ -342,6 +344,7 @@ export class OttoV2__infosResult {
     this.value3 = value3;
     this.value4 = value4;
     this.value5 = value5;
+    this.value6 = value6;
   }
 
   toMap(): TypedMap<string, ethereum.Value> {
@@ -350,11 +353,12 @@ export class OttoV2__infosResult {
     map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
     map.set("value2", ethereum.Value.fromUnsignedBigInt(this.value2));
     map.set("value3", ethereum.Value.fromUnsignedBigInt(this.value3));
+    map.set("value4", ethereum.Value.fromUnsignedBigInt(this.value4));
     map.set(
-      "value4",
-      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(this.value4))
+      "value5",
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(this.value5))
     );
-    map.set("value5", ethereum.Value.fromBoolean(this.value5));
+    map.set("value6", ethereum.Value.fromBoolean(this.value6));
     return map;
   }
 }
@@ -428,25 +432,6 @@ export class OttoV2 extends ethereum.SmartContract {
   try_balanceOf(owner: Address): ethereum.CallResult<BigInt> {
     let result = super.tryCall("balanceOf", "balanceOf(address):(uint256)", [
       ethereum.Value.fromAddress(owner)
-    ]);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  canOpenAt(tokenId_: BigInt): BigInt {
-    let result = super.call("canOpenAt", "canOpenAt(uint256):(uint256)", [
-      ethereum.Value.fromUnsignedBigInt(tokenId_)
-    ]);
-
-    return result[0].toBigInt();
-  }
-
-  try_canOpenAt(tokenId_: BigInt): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("canOpenAt", "canOpenAt(uint256):(uint256)", [
-      ethereum.Value.fromUnsignedBigInt(tokenId_)
     ]);
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -592,7 +577,7 @@ export class OttoV2 extends ethereum.SmartContract {
   infos(param0: BigInt): OttoV2__infosResult {
     let result = super.call(
       "infos",
-      "infos(uint256):(uint256,uint256,uint256,uint256,uint8,bool)",
+      "infos(uint256):(uint256,uint256,uint256,uint256,uint256,uint8,bool)",
       [ethereum.Value.fromUnsignedBigInt(param0)]
     );
 
@@ -601,15 +586,16 @@ export class OttoV2 extends ethereum.SmartContract {
       result[1].toBigInt(),
       result[2].toBigInt(),
       result[3].toBigInt(),
-      result[4].toI32(),
-      result[5].toBoolean()
+      result[4].toBigInt(),
+      result[5].toI32(),
+      result[6].toBoolean()
     );
   }
 
   try_infos(param0: BigInt): ethereum.CallResult<OttoV2__infosResult> {
     let result = super.tryCall(
       "infos",
-      "infos(uint256):(uint256,uint256,uint256,uint256,uint8,bool)",
+      "infos(uint256):(uint256,uint256,uint256,uint256,uint256,uint8,bool)",
       [ethereum.Value.fromUnsignedBigInt(param0)]
     );
     if (result.reverted) {
@@ -622,8 +608,9 @@ export class OttoV2 extends ethereum.SmartContract {
         value[1].toBigInt(),
         value[2].toBigInt(),
         value[3].toBigInt(),
-        value[4].toI32(),
-        value[5].toBoolean()
+        value[4].toBigInt(),
+        value[5].toI32(),
+        value[6].toBoolean()
       )
     );
   }
@@ -1517,6 +1504,40 @@ export class SetBaseURICall__Outputs {
   _call: SetBaseURICall;
 
   constructor(call: SetBaseURICall) {
+    this._call = call;
+  }
+}
+
+export class SetCanOpenAtCall extends ethereum.Call {
+  get inputs(): SetCanOpenAtCall__Inputs {
+    return new SetCanOpenAtCall__Inputs(this);
+  }
+
+  get outputs(): SetCanOpenAtCall__Outputs {
+    return new SetCanOpenAtCall__Outputs(this);
+  }
+}
+
+export class SetCanOpenAtCall__Inputs {
+  _call: SetCanOpenAtCall;
+
+  constructor(call: SetCanOpenAtCall) {
+    this._call = call;
+  }
+
+  get ts_(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+
+  get tokendIds_(): Array<BigInt> {
+    return this._call.inputValues[1].value.toBigIntArray();
+  }
+}
+
+export class SetCanOpenAtCall__Outputs {
+  _call: SetCanOpenAtCall;
+
+  constructor(call: SetCanOpenAtCall) {
     this._call = call;
   }
 }
