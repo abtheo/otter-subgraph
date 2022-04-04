@@ -65,3 +65,6 @@ export const PEARL_CHEST_BLOCK = '23569724'
 
 export const OTTO = '0x6e8A9Cb6B1E73e9fCe3FD3c68b5af9728F708eB7'
 export const OTTO_V2_BLOCK = '26538565'
+
+export const OTTER_QI_LOCKER = '0x69f6c4Fa150F9F0b3037612CF8FadDAeDbd46Bb8'
+export const QI_FARM = '0x574fe4e8120c4da1741b5fd45584de7a5b521f0f'

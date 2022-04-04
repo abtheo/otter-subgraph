@@ -45,6 +45,8 @@ dataSources:
           file: ./abis/xTetuQi.json
         - name: OtterQiDAOInvestment
           file: ./abis/OtterQiDAOInvestment.json
+        - name: QiFarm
+          file: ./abis/QiFarm.json
         - name: OtterQuickSwapInvestment
           file: ./abis/OtterQuickSwapInvestment.json
         - name: AggregatorV3InterfaceABI
@@ -121,6 +123,8 @@ dataSources:
           file: ./abis/xTetuQi.json
         - name: OtterQiDAOInvestment
           file: ./abis/OtterQiDAOInvestment.json
+        - name: QiFarm
+          file: ./abis/QiFarm.json
         - name: OtterQuickSwapInvestment
           file: ./abis/OtterQuickSwapInvestment.json
         - name: AggregatorV3InterfaceABI

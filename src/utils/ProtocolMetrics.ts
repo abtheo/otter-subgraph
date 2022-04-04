@@ -10,6 +10,7 @@ import { OtterQiDAOInvestment } from '../../generated/OtterTreasury/OtterQiDAOIn
 import { OtterQuickSwapInvestment } from '../../generated/OtterTreasury/OtterQuickSwapInvestment'
 import { OtterStaking } from '../../generated/OtterTreasury/OtterStaking'
 import { OtterStakingDistributor } from '../../generated/OtterTreasury/OtterStakingDistributor'
+import { QiFarm } from '../../generated/OtterTreasury/QiFarm'
 import { UniswapV2Pair } from '../../generated/OtterTreasury/UniswapV2Pair'
 import { CurveMai3poolContract } from '../../generated/OtterTreasury/CurveMai3poolContract'
 import { ProtocolMetric, Transaction } from '../../generated/schema'
@@ -58,6 +59,8 @@ import {
   CURVE_MAI_3POOL_PAIR_BLOCK,
   CURVE_MAI_3POOL_INVESTMENT_PAIR,
   CURVE_MAI_3POOL_INVESTMENT_PAIR_BLOCK,
+  OTTER_QI_LOCKER,
+  QI_FARM,
 } from './Constants'
 import { dayFromTimestamp } from './Dates'
 import { toDecimal } from './Decimals'
@@ -231,6 +234,31 @@ function getQiWmaticMarketValue(): BigDecimal {
   return value
 }
 
+function getQiWmaticInvestmentMarketValue(): BigDecimal {
+  let pair = OtterQiDAOInvestment.bind(Address.fromString(UNI_QI_WMATIC_INVESTMENT_PAIR))
+  let reserves = pair.getReserves()
+  let wmatic = toDecimal(reserves.value0, 18)
+  let qi = toDecimal(reserves.value1, 18)
+  log.debug('investment wmatic {}, qi {}', [qi.toString(), wmatic.toString()])
+
+  let balance = pair.balanceOf(Address.fromString(TREASURY_ADDRESS)).toBigDecimal()
+  let farm = QiFarm.bind(Address.fromString(QI_FARM))
+  let deposited = farm.deposited(BigInt.fromU64(4), Address.fromString(OTTER_QI_LOCKER)).toBigDecimal()
+
+  let total = pair.totalSupply().toBigDecimal()
+  log.debug('investment WMATIC/Qi LP balance {}, total {}', [balance.toString(), total.toString()])
+
+  let wmaticPerQi = wmatic.div(qi)
+
+  let value = wmatic
+    .plus(wmaticPerQi.times(qi))
+    .times(getwMaticUsdRate())
+    .times(balance.plus(deposited))
+    .div(total)
+  log.debug('investment WMATIC/Qi value {}', [value.toString()])
+  return value
+}
+
 function getPearlWmaticMarketValue(): BigDecimal {
   let pair = UniswapV2Pair.bind(Address.fromString(UNI_PEARL_WMATIC_PAIR))
   let reserves = pair.getReserves()
@@ -251,29 +279,6 @@ function getPearlWmaticMarketValue(): BigDecimal {
     .times(balance)
     .div(total)
   log.debug('pair WMATIC/PEARL value {}', [value.toString()])
-  return value
-}
-
-function getQiWmaticInvestmentMarketValue(): BigDecimal {
-  let pair = OtterQiDAOInvestment.bind(Address.fromString(UNI_QI_WMATIC_INVESTMENT_PAIR))
-  let reserves = pair.getReserves()
-  let wmatic = toDecimal(reserves.value0, 18)
-  let qi = toDecimal(reserves.value1, 18)
-  log.debug('investment wmatic {}, qi {}', [qi.toString(), wmatic.toString()])
-
-  let balance = pair.balanceOf(Address.fromString(TREASURY_ADDRESS)).toBigDecimal()
-
-  let total = pair.totalSupply().toBigDecimal()
-  log.debug('investment WMATIC/Qi LP balance {}, total {}', [balance.toString(), total.toString()])
-
-  let wmaticPerQi = wmatic.div(qi)
-
-  let value = wmatic
-    .plus(wmaticPerQi.times(qi))
-    .times(getwMaticUsdRate())
-    .times(balance)
-    .div(total)
-  log.debug('investment WMATIC/Qi value {}', [value.toString()])
   return value
 }
 
