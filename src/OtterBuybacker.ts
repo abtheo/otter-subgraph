@@ -12,6 +12,4 @@ export function handleBuyback(event: BuybackEvent): void {
   entity.timestamp = transaction.timestamp
   entity.transaction = transaction.id
   entity.save()
-
-  //TODO: updateProtocolMetrics with Buyback amount ??
 }
