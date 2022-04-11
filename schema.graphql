@@ -185,11 +185,13 @@ type ProtocolMetric @entity {
   treasuryWmaticRiskFreeValue: BigDecimal!
   treasuryWmaticMarketValue: BigDecimal!
   treasuryQiMarketValue: BigDecimal!
+  treasuryTetuQiMarketValue: BigDecimal!
   treasuryOtterClamQiMarketValue: BigDecimal!
   treasuryDquickMarketValue: BigDecimal!
   treasuryQiWmaticMarketValue: BigDecimal!
   treasuryQiWmaticQiInvestmentMarketValue: BigDecimal!
-  treasuryPearlWmaticMarketValue: BigDecimal!
+  treasuryCurveMai3PoolValue: BigDecimal!
+  treasuryCurveMai3PoolInvestmentValue: BigDecimal!
   currentAPY: BigDecimal!
   safeHandAPY: BigDecimal!
   furryHandAPY: BigDecimal!
@@ -207,4 +209,22 @@ type ProtocolMetric @entity {
   treasuryClamMaiPOL: BigDecimal!
   treasuryClamFraxPOL: BigDecimal!
   treasuryClamWmaticPOL: BigDecimal!
+}
+
+enum PortalStatus {
+  UNOPENED
+  OPENED
+  SUMMONED
+}
+
+type Otto @entity {
+  id: ID!
+  tokenId: BigInt!
+  tokenURI: String!
+  owner: Bytes!
+  portalStatus: PortalStatus!
+  canOpenAt: BigInt!
+  summonAt: BigInt!
+  mintAt: BigInt!
+  updateAt: BigInt!
 }

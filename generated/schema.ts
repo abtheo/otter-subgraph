@@ -1600,6 +1600,10 @@ export class ProtocolMetric extends Entity {
     );
     this.set("treasuryQiMarketValue", Value.fromBigDecimal(BigDecimal.zero()));
     this.set(
+      "treasuryTetuQiMarketValue",
+      Value.fromBigDecimal(BigDecimal.zero())
+    );
+    this.set(
       "treasuryOtterClamQiMarketValue",
       Value.fromBigDecimal(BigDecimal.zero())
     );
@@ -1616,7 +1620,11 @@ export class ProtocolMetric extends Entity {
       Value.fromBigDecimal(BigDecimal.zero())
     );
     this.set(
-      "treasuryPearlWmaticMarketValue",
+      "treasuryCurveMai3PoolValue",
+      Value.fromBigDecimal(BigDecimal.zero())
+    );
+    this.set(
+      "treasuryCurveMai3PoolInvestmentValue",
       Value.fromBigDecimal(BigDecimal.zero())
     );
     this.set("currentAPY", Value.fromBigDecimal(BigDecimal.zero()));
@@ -1847,6 +1855,15 @@ export class ProtocolMetric extends Entity {
     this.set("treasuryQiMarketValue", Value.fromBigDecimal(value));
   }
 
+  get treasuryTetuQiMarketValue(): BigDecimal {
+    let value = this.get("treasuryTetuQiMarketValue");
+    return value!.toBigDecimal();
+  }
+
+  set treasuryTetuQiMarketValue(value: BigDecimal) {
+    this.set("treasuryTetuQiMarketValue", Value.fromBigDecimal(value));
+  }
+
   get treasuryOtterClamQiMarketValue(): BigDecimal {
     let value = this.get("treasuryOtterClamQiMarketValue");
     return value!.toBigDecimal();
@@ -1886,13 +1903,25 @@ export class ProtocolMetric extends Entity {
     );
   }
 
-  get treasuryPearlWmaticMarketValue(): BigDecimal {
-    let value = this.get("treasuryPearlWmaticMarketValue");
+  get treasuryCurveMai3PoolValue(): BigDecimal {
+    let value = this.get("treasuryCurveMai3PoolValue");
     return value!.toBigDecimal();
   }
 
-  set treasuryPearlWmaticMarketValue(value: BigDecimal) {
-    this.set("treasuryPearlWmaticMarketValue", Value.fromBigDecimal(value));
+  set treasuryCurveMai3PoolValue(value: BigDecimal) {
+    this.set("treasuryCurveMai3PoolValue", Value.fromBigDecimal(value));
+  }
+
+  get treasuryCurveMai3PoolInvestmentValue(): BigDecimal {
+    let value = this.get("treasuryCurveMai3PoolInvestmentValue");
+    return value!.toBigDecimal();
+  }
+
+  set treasuryCurveMai3PoolInvestmentValue(value: BigDecimal) {
+    this.set(
+      "treasuryCurveMai3PoolInvestmentValue",
+      Value.fromBigDecimal(value)
+    );
   }
 
   get currentAPY(): BigDecimal {
@@ -2118,5 +2147,119 @@ export class ProtocolMetric extends Entity {
 
   set treasuryClamWmaticPOL(value: BigDecimal) {
     this.set("treasuryClamWmaticPOL", Value.fromBigDecimal(value));
+  }
+}
+
+export class Otto extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+
+    this.set("tokenId", Value.fromBigInt(BigInt.zero()));
+    this.set("tokenURI", Value.fromString(""));
+    this.set("owner", Value.fromBytes(Bytes.empty()));
+    this.set("portalStatus", Value.fromString(""));
+    this.set("canOpenAt", Value.fromBigInt(BigInt.zero()));
+    this.set("summonAt", Value.fromBigInt(BigInt.zero()));
+    this.set("mintAt", Value.fromBigInt(BigInt.zero()));
+    this.set("updateAt", Value.fromBigInt(BigInt.zero()));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save Otto entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        "Cannot save Otto entity with non-string ID. " +
+          'Considering using .toHex() to convert the "id" to a string.'
+      );
+      store.set("Otto", id.toString(), this);
+    }
+  }
+
+  static load(id: string): Otto | null {
+    return changetype<Otto | null>(store.get("Otto", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get tokenId(): BigInt {
+    let value = this.get("tokenId");
+    return value!.toBigInt();
+  }
+
+  set tokenId(value: BigInt) {
+    this.set("tokenId", Value.fromBigInt(value));
+  }
+
+  get tokenURI(): string {
+    let value = this.get("tokenURI");
+    return value!.toString();
+  }
+
+  set tokenURI(value: string) {
+    this.set("tokenURI", Value.fromString(value));
+  }
+
+  get owner(): Bytes {
+    let value = this.get("owner");
+    return value!.toBytes();
+  }
+
+  set owner(value: Bytes) {
+    this.set("owner", Value.fromBytes(value));
+  }
+
+  get portalStatus(): string {
+    let value = this.get("portalStatus");
+    return value!.toString();
+  }
+
+  set portalStatus(value: string) {
+    this.set("portalStatus", Value.fromString(value));
+  }
+
+  get canOpenAt(): BigInt {
+    let value = this.get("canOpenAt");
+    return value!.toBigInt();
+  }
+
+  set canOpenAt(value: BigInt) {
+    this.set("canOpenAt", Value.fromBigInt(value));
+  }
+
+  get summonAt(): BigInt {
+    let value = this.get("summonAt");
+    return value!.toBigInt();
+  }
+
+  set summonAt(value: BigInt) {
+    this.set("summonAt", Value.fromBigInt(value));
+  }
+
+  get mintAt(): BigInt {
+    let value = this.get("mintAt");
+    return value!.toBigInt();
+  }
+
+  set mintAt(value: BigInt) {
+    this.set("mintAt", Value.fromBigInt(value));
+  }
+
+  get updateAt(): BigInt {
+    let value = this.get("updateAt");
+    return value!.toBigInt();
+  }
+
+  set updateAt(value: BigInt) {
+    this.set("updateAt", Value.fromBigInt(value));
   }
 }
