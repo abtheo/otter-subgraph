@@ -226,3 +226,9 @@ type Harvest @entity {
   timestamp: BigInt!
   amount: BigInt!
 }
+
+type TreasuryRevenue @entity {
+  id: ID!
+  timestamp: BigInt!
+  qiLockerHarvestAmount: BigDecimal!
+}

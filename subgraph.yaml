@@ -194,10 +194,13 @@ dataSources:
       startBlock: 25352622
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
+        - Transaction
         - Harvest
+        - HarvestStaking
+        - TreasuryRevenue
       abis:
         - name: OtterQiLocker
           file: ./abis/OtterQiLocker.json
@@ -207,4 +210,4 @@ dataSources:
           handler: handleHarvest
         - event: HarvestStaking(indexed uint256,uint256)
           handler: handleHarvestStaking
-      file: ./src/TreasuryRevenue.ts
+      file: ./src/OtterQiLocker.ts
