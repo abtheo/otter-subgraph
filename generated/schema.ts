@@ -2179,3 +2179,67 @@ export class Otto extends Entity {
     this.set("updateAt", Value.fromBigInt(value));
   }
 }
+
+export class Harvest extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+
+    this.set("transaction", Value.fromString(""));
+    this.set("timestamp", Value.fromBigInt(BigInt.zero()));
+    this.set("amount", Value.fromBigInt(BigInt.zero()));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save Harvest entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        "Cannot save Harvest entity with non-string ID. " +
+          'Considering using .toHex() to convert the "id" to a string.'
+      );
+      store.set("Harvest", id.toString(), this);
+    }
+  }
+
+  static load(id: string): Harvest | null {
+    return changetype<Harvest | null>(store.get("Harvest", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get transaction(): string {
+    let value = this.get("transaction");
+    return value!.toString();
+  }
+
+  set transaction(value: string) {
+    this.set("transaction", Value.fromString(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    return value!.toBigInt();
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+
+  get amount(): BigInt {
+    let value = this.get("amount");
+    return value!.toBigInt();
+  }
+
+  set amount(value: BigInt) {
+    this.set("amount", Value.fromBigInt(value));
+  }
+}

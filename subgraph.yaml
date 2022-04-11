@@ -184,3 +184,27 @@ dataSources:
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
       file: ./src/Otto.ts
+
+  - kind: ethereum/contract
+    name: OtterQiLocker
+    network: matic
+    source:
+      address: '0x69f6c4Fa150F9F0b3037612CF8FadDAeDbd46Bb8'
+      abi: OtterQiLocker
+      startBlock: 25352622
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Harvest
+      abis:
+        - name: OtterQiLocker
+          file: ./abis/OtterQiLocker.json
+        # --------------------
+      eventHandlers:
+        - event: Harvest(uint256)
+          handler: handleHarvest
+        - event: HarvestStaking(indexed uint256,uint256)
+          handler: handleHarvestStaking
+      file: ./src/TreasuryRevenue.ts

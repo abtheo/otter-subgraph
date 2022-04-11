@@ -219,3 +219,10 @@ type Otto @entity {
   mintAt: BigInt!
   updateAt: BigInt!
 }
+
+type Harvest @entity {
+  id: ID!
+  transaction: Transaction!
+  timestamp: BigInt!
+  amount: BigInt!
+}
