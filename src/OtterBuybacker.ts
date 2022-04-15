@@ -8,7 +8,7 @@ export function handleBuyback(event: BuybackEvent): void {
   let entity = new Buyback(transaction.id)
   entity.token = event.params.token
   entity.tokenAmount = event.params.tokenAmount
-  entity.clamAccount = event.params.clamAmount
+  entity.clamAmount = event.params.clamAmount
   entity.timestamp = transaction.timestamp
   entity.transaction = transaction.id
   entity.save()
