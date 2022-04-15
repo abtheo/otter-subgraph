@@ -2250,7 +2250,11 @@ export class TreasuryRevenue extends Entity {
     this.set("id", Value.fromString(id));
 
     this.set("timestamp", Value.fromBigInt(BigInt.zero()));
-    this.set("qiLockerHarvestAmount", Value.fromBigDecimal(BigDecimal.zero()));
+    this.set("qiLockerHarvestAmount", Value.fromBigInt(BigInt.zero()));
+    this.set(
+      "qiLockerHarvestMarketValue",
+      Value.fromBigDecimal(BigDecimal.zero())
+    );
   }
 
   save(): void {
@@ -2288,12 +2292,21 @@ export class TreasuryRevenue extends Entity {
     this.set("timestamp", Value.fromBigInt(value));
   }
 
-  get qiLockerHarvestAmount(): BigDecimal {
+  get qiLockerHarvestAmount(): BigInt {
     let value = this.get("qiLockerHarvestAmount");
+    return value!.toBigInt();
+  }
+
+  set qiLockerHarvestAmount(value: BigInt) {
+    this.set("qiLockerHarvestAmount", Value.fromBigInt(value));
+  }
+
+  get qiLockerHarvestMarketValue(): BigDecimal {
+    let value = this.get("qiLockerHarvestMarketValue");
     return value!.toBigDecimal();
   }
 
-  set qiLockerHarvestAmount(value: BigDecimal) {
-    this.set("qiLockerHarvestAmount", Value.fromBigDecimal(value));
+  set qiLockerHarvestMarketValue(value: BigDecimal) {
+    this.set("qiLockerHarvestMarketValue", Value.fromBigDecimal(value));
   }
 }

@@ -230,5 +230,6 @@ type Harvest @entity {
 type TreasuryRevenue @entity {
   id: ID!
   timestamp: BigInt!
-  qiLockerHarvestAmount: BigDecimal!
+  qiLockerHarvestAmount: BigInt!
+  qiLockerHarvestMarketValue: BigDecimal!
 }
