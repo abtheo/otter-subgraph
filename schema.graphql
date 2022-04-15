@@ -153,6 +153,15 @@ type Withdrawal @entity {
   value: BigInt! # uint256
 }
 
+type Buyback @entity {
+  id: ID!
+  transaction: Transaction!
+  timestamp: BigInt!
+  token: Bytes! # address
+  tokenAmount: BigInt! # uint256
+  clamAccount: BigInt! # uint256
+}
+
 type ProtocolMetric @entity {
   id: ID!
   timestamp: BigInt!
