@@ -55,7 +55,7 @@ export function updateTreasuryRevenueBuyback(buyback: Buyback): void {
     treasuryRevenue.buybackMarketValue = getQiMarketValue(toDecimal(buyback.tokenAmount, 18))
   }
   if (buyback.token == Address.fromString(MATIC_ERC20_CONTRACT)) {
-    treasuryRevenue.buybackMarketValue = getwMaticUsdRate(toDecimal(buyback.tokenAmount, 18))
+    treasuryRevenue.buybackMarketValue = getwMATICMarketValue(toDecimal(buyback.tokenAmount, 18))
   }
   //stablecoins (18 decimals)
   if (

@@ -1474,7 +1474,7 @@ export class Buyback extends Entity {
     this.set("timestamp", Value.fromBigInt(BigInt.zero()));
     this.set("token", Value.fromBytes(Bytes.empty()));
     this.set("tokenAmount", Value.fromBigInt(BigInt.zero()));
-    this.set("clamAccount", Value.fromBigInt(BigInt.zero()));
+    this.set("clamAmount", Value.fromBigInt(BigInt.zero()));
   }
 
   save(): void {
@@ -1539,13 +1539,13 @@ export class Buyback extends Entity {
     this.set("tokenAmount", Value.fromBigInt(value));
   }
 
-  get clamAccount(): BigInt {
-    let value = this.get("clamAccount");
+  get clamAmount(): BigInt {
+    let value = this.get("clamAmount");
     return value!.toBigInt();
   }
 
-  set clamAccount(value: BigInt) {
-    this.set("clamAccount", Value.fromBigInt(value));
+  set clamAmount(value: BigInt) {
+    this.set("clamAmount", Value.fromBigInt(value));
   }
 }
 
