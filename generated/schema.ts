@@ -2344,6 +2344,8 @@ export class TreasuryRevenue extends Entity {
       "qiDaoInvestmentHarvestMarketValue",
       Value.fromBigDecimal(BigDecimal.zero())
     );
+    this.set("buybackClamAmount", Value.fromBigInt(BigInt.zero()));
+    this.set("buybackMarketValue", Value.fromBigDecimal(BigDecimal.zero()));
   }
 
   save(): void {
@@ -2415,5 +2417,23 @@ export class TreasuryRevenue extends Entity {
 
   set qiDaoInvestmentHarvestMarketValue(value: BigDecimal) {
     this.set("qiDaoInvestmentHarvestMarketValue", Value.fromBigDecimal(value));
+  }
+
+  get buybackClamAmount(): BigInt {
+    let value = this.get("buybackClamAmount");
+    return value!.toBigInt();
+  }
+
+  set buybackClamAmount(value: BigInt) {
+    this.set("buybackClamAmount", Value.fromBigInt(value));
+  }
+
+  get buybackMarketValue(): BigDecimal {
+    let value = this.get("buybackMarketValue");
+    return value!.toBigDecimal();
+  }
+
+  set buybackMarketValue(value: BigDecimal) {
+    this.set("buybackMarketValue", Value.fromBigDecimal(value));
   }
 }

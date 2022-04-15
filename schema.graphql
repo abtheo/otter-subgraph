@@ -159,7 +159,7 @@ type Buyback @entity {
   timestamp: BigInt!
   token: Bytes! # address
   tokenAmount: BigInt! # uint256
-  clamAccount: BigInt! # uint256
+  clamAmount: BigInt! # uint256
 }
 
 type ProtocolMetric @entity {
@@ -243,4 +243,6 @@ type TreasuryRevenue @entity {
   qiLockerHarvestMarketValue: BigDecimal!
   qiDaoInvestmentHarvestAmount: BigInt!
   qiDaoInvestmentHarvestMarketValue: BigDecimal!
+  buybackClamAmount: BigInt!
+  buybackMarketValue: BigDecimal!
 }
