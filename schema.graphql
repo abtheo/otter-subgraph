@@ -232,4 +232,6 @@ type TreasuryRevenue @entity {
   timestamp: BigInt!
   qiLockerHarvestAmount: BigInt!
   qiLockerHarvestMarketValue: BigDecimal!
+  qiDaoInvestmentHarvestAmount: BigInt!
+  qiDaoInvestmentHarvestMarketValue: BigDecimal!
 }

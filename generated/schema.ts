@@ -2255,6 +2255,11 @@ export class TreasuryRevenue extends Entity {
       "qiLockerHarvestMarketValue",
       Value.fromBigDecimal(BigDecimal.zero())
     );
+    this.set("qiDaoInvestmentHarvestAmount", Value.fromBigInt(BigInt.zero()));
+    this.set(
+      "qiDaoInvestmentHarvestMarketValue",
+      Value.fromBigDecimal(BigDecimal.zero())
+    );
   }
 
   save(): void {
@@ -2308,5 +2313,23 @@ export class TreasuryRevenue extends Entity {
 
   set qiLockerHarvestMarketValue(value: BigDecimal) {
     this.set("qiLockerHarvestMarketValue", Value.fromBigDecimal(value));
+  }
+
+  get qiDaoInvestmentHarvestAmount(): BigInt {
+    let value = this.get("qiDaoInvestmentHarvestAmount");
+    return value!.toBigInt();
+  }
+
+  set qiDaoInvestmentHarvestAmount(value: BigInt) {
+    this.set("qiDaoInvestmentHarvestAmount", Value.fromBigInt(value));
+  }
+
+  get qiDaoInvestmentHarvestMarketValue(): BigDecimal {
+    let value = this.get("qiDaoInvestmentHarvestMarketValue");
+    return value!.toBigDecimal();
+  }
+
+  set qiDaoInvestmentHarvestMarketValue(value: BigDecimal) {
+    this.set("qiDaoInvestmentHarvestMarketValue", Value.fromBigDecimal(value));
   }
 }

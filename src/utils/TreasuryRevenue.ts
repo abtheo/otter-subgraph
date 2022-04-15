@@ -1,8 +1,9 @@
 import { toDecimal } from './Decimals'
 import { Address, BigDecimal, BigInt, log } from '@graphprotocol/graph-ts'
 import { hourFromTimestamp } from './Dates'
-import { TreasuryRevenue, Transaction, Harvest } from '../../generated/schema'
+import { TreasuryRevenue, Transaction, Harvest, Transfer } from '../../generated/schema'
 import { getQiUsdRate } from './Price'
+import { getQiMarketValue } from './ProtocolMetrics'
 
 export function loadOrCreateTreasuryRevenue(timestamp: BigInt): TreasuryRevenue {
   //TODO: Still round?
@@ -14,13 +15,15 @@ export function loadOrCreateTreasuryRevenue(timestamp: BigInt): TreasuryRevenue 
     treasuryRevenue.timestamp = timestamp
     treasuryRevenue.qiLockerHarvestAmount = BigInt.fromString('0')
     treasuryRevenue.qiLockerHarvestMarketValue = BigDecimal.fromString('0')
+    treasuryRevenue.qiDaoInvestmentHarvestAmount = BigInt.fromString('0')
+    treasuryRevenue.qiDaoInvestmentHarvestMarketValue = BigDecimal.fromString('0')
 
     treasuryRevenue.save()
   }
   return treasuryRevenue as TreasuryRevenue
 }
 
-export function updateTreasuryRevenue(harvest: Harvest): void {
+export function updateTreasuryRevenueHarvest(harvest: Harvest): void {
   let treasuryRevenue = loadOrCreateTreasuryRevenue(harvest.timestamp)
 
   treasuryRevenue.qiLockerHarvestAmount = harvest.amount
@@ -28,12 +31,11 @@ export function updateTreasuryRevenue(harvest: Harvest): void {
 
   treasuryRevenue.save()
 }
+export function updateTreasuryRevenueTransfer(transfer: Transfer): void {
+  let treasuryRevenue = loadOrCreateTreasuryRevenue(transfer.timestamp)
 
-export function getQiMarketValue(balance: BigDecimal): BigDecimal {
-  let usdPerQi = getQiUsdRate()
-  log.debug('1 Qi = {} USD', [usdPerQi.toString()])
+  treasuryRevenue.qiDaoInvestmentHarvestAmount = transfer.value
+  treasuryRevenue.qiDaoInvestmentHarvestMarketValue = getQiMarketValue(toDecimal(transfer.value, 18))
 
-  let marketValue = balance.times(usdPerQi)
-  log.debug('qi marketValue = {}', [marketValue.toString()])
-  return marketValue
+  treasuryRevenue.save()
 }
