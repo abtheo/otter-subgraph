@@ -1,17 +1,15 @@
 import { toDecimal } from './Decimals'
 import { Address, BigDecimal, BigInt, log } from '@graphprotocol/graph-ts'
-import { hourFromTimestamp } from './Dates'
+import { dayFromTimestamp } from './Dates'
 import { TreasuryRevenue, Transaction, Harvest, Transfer } from '../../generated/schema'
-import { getQiUsdRate } from './Price'
 import { getQiMarketValue } from './ProtocolMetrics'
 
 export function loadOrCreateTreasuryRevenue(timestamp: BigInt): TreasuryRevenue {
-  //TODO: Still round?
-  let hourTimestamp = hourFromTimestamp(timestamp)
+  let dayTimestamp = dayFromTimestamp(timestamp)
 
-  let treasuryRevenue = TreasuryRevenue.load(hourTimestamp)
+  let treasuryRevenue = TreasuryRevenue.load(dayTimestamp)
   if (treasuryRevenue == null) {
-    treasuryRevenue = new TreasuryRevenue(hourTimestamp)
+    treasuryRevenue = new TreasuryRevenue(dayTimestamp)
     treasuryRevenue.timestamp = timestamp
     treasuryRevenue.qiLockerHarvestAmount = BigInt.fromString('0')
     treasuryRevenue.qiLockerHarvestMarketValue = BigDecimal.fromString('0')
