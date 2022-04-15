@@ -21,6 +21,7 @@ import {
   ReservesUpdated,
   RewardsMinted,
   Withdrawal,
+  Transfer,
 } from '../generated/schema'
 
 import { loadOrCreateTransaction } from './utils/Transactions'

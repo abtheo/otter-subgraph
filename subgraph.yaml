@@ -97,6 +97,7 @@ dataSources:
         - ReservesUpdated
         - RewardsMinted
         - Withdrawal
+        - Transfer
       abis:
         - name: OtterTreasury
           file: ./abis/OtterTreasury.json
@@ -204,10 +205,32 @@ dataSources:
       abis:
         - name: OtterQiLocker
           file: ./abis/OtterQiLocker.json
-        # --------------------
       eventHandlers:
         - event: Harvest(uint256)
           handler: handleHarvest
         - event: HarvestStaking(indexed uint256,uint256)
           handler: handleHarvestStaking
       file: ./src/OtterQiLocker.ts
+
+  - kind: ethereum/contract
+    name: Qi
+    network: matic
+    source:
+      address: '0x580A84C73811E1839F75d86d75d88cCa0c241fF4'
+      abi: Qi
+      startBlock: 24088468
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Transaction
+        - Transfer
+        - TreasuryRevenue
+      abis:
+        - name: Qi
+          file: ./abis/Qi.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleQiDaoInvestmentHarvestTransfer
+      file: ./src/Qi.ts
