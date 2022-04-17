@@ -1,5 +1,6 @@
 import { Buyback as BuybackEvent } from '../generated/OtterTreasury/OtterBuybacker'
 import { Buyback } from '../generated/schema'
+import { updateTreasuryRevenueBuyback } from './utils/TreasuryRevenue'
 
 import { loadOrCreateTransaction } from './utils/Transactions'
 
@@ -11,5 +12,6 @@ export function handleBuyback(event: BuybackEvent): void {
   entity.clamAmount = event.params.clamAmount
   entity.timestamp = transaction.timestamp
   entity.transaction = transaction.id
+  updateTreasuryRevenueBuyback(entity)
   entity.save()
 }

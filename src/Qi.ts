@@ -1,5 +1,5 @@
 import { Transfer as TransferEvent } from '../generated/Qi/Qi'
-import { Address } from '@graphprotocol/graph-ts'
+import { Address, log } from '@graphprotocol/graph-ts'
 import { Transfer } from '../generated/schema'
 import { loadOrCreateTransaction } from './utils/Transactions'
 import { updateTreasuryRevenueTransfer } from './utils/TreasuryRevenue'
@@ -14,11 +14,16 @@ So instead we have to track all Qi transfers,
 then filter out the specific transactions from the OtterQiDaoInvestment contract -> OtterTreasury
 */
 export function handleQiDaoInvestmentHarvestTransfer(event: TransferEvent): void {
-  let transaction = loadOrCreateTransaction(event.transaction, event.block)
+  log.debug('QiDaoInvestmentHarvestTransfer {}, from: {}, to: {}', [
+    event.transaction.hash.toString(),
+    event.params.from.toString(),
+    event.params.to.toString(),
+  ])
   if (
     event.params.from == Address.fromString(UNI_MAI_USDC_QI_INVESTMENT_PAIR) &&
     event.params.to == Address.fromString(TREASURY_ADDRESS)
   ) {
+    let transaction = loadOrCreateTransaction(event.transaction, event.block)
     let entity = new Transfer(transaction.id)
     entity.transaction = transaction.id
     entity.timestamp = transaction.timestamp
