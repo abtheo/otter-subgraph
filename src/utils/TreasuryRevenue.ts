@@ -1,7 +1,7 @@
 import { toDecimal } from './Decimals'
 import { Address, BigDecimal, BigInt, log } from '@graphprotocol/graph-ts'
-import { hourFromTimestamp } from './Dates'
-import { TreasuryRevenue, Transaction, Harvest, Transfer, Buyback } from '../../generated/schema'
+import { dayFromTimestamp } from './Dates'
+import { TreasuryRevenue, Transaction, Harvest, Transfer, Buyback, DeprecatedBuyback } from '../../generated/schema'
 import { getQiMarketValue } from './ProtocolMetrics'
 import {
   QI_ERC20_CONTRACT,
@@ -13,7 +13,7 @@ import {
 import { getwMaticUsdRate } from './Price'
 
 export function loadOrCreateTreasuryRevenue(timestamp: BigInt): TreasuryRevenue {
-  let ts = (timestamp.toI32() - 0).toString()
+  let ts = dayFromTimestamp(timestamp)
 
   let treasuryRevenue = TreasuryRevenue.load(ts)
   if (treasuryRevenue == null) {
@@ -32,45 +32,55 @@ export function loadOrCreateTreasuryRevenue(timestamp: BigInt): TreasuryRevenue 
 }
 
 export function updateTreasuryRevenueHarvest(harvest: Harvest): void {
-  log.debug('HarvestEvent, txid: {}', [harvest.id.toString()])
+  log.debug('HarvestEvent, txid: {}', [harvest.id])
   let treasuryRevenue = loadOrCreateTreasuryRevenue(harvest.timestamp)
-
-  treasuryRevenue.qiLockerHarvestAmount = harvest.amount
-  treasuryRevenue.qiLockerHarvestMarketValue = getQiMarketValue(toDecimal(harvest.amount, 18))
+  //Aggregate over day with +=
+  treasuryRevenue.qiLockerHarvestAmount = treasuryRevenue.qiLockerHarvestAmount.plus(harvest.amount)
+  treasuryRevenue.qiLockerHarvestMarketValue = treasuryRevenue.qiLockerHarvestMarketValue.plus(
+    getQiMarketValue(toDecimal(harvest.amount, 18)),
+  )
 
   treasuryRevenue.save()
 }
 export function updateTreasuryRevenueTransfer(transfer: Transfer): void {
-  log.debug('TransferEvent, txid: {}', [transfer.id.toString()])
+  log.debug('TransferEvent, txid: {}', [transfer.id])
   let treasuryRevenue = loadOrCreateTreasuryRevenue(transfer.timestamp)
 
-  treasuryRevenue.qiDaoInvestmentHarvestAmount = transfer.value
-  treasuryRevenue.qiDaoInvestmentHarvestMarketValue = getQiMarketValue(toDecimal(transfer.value, 18))
+  treasuryRevenue.qiDaoInvestmentHarvestAmount = treasuryRevenue.qiDaoInvestmentHarvestAmount.plus(transfer.value)
+  treasuryRevenue.qiDaoInvestmentHarvestMarketValue = treasuryRevenue.qiDaoInvestmentHarvestMarketValue.plus(
+    getQiMarketValue(toDecimal(transfer.value, 18)),
+  )
 
   treasuryRevenue.save()
 }
-export function updateTreasuryRevenueBuyback(buyback: Buyback): void {
-  log.debug('BuybackEvent, txid: {}', [buyback.id.toString()])
+
+export function updateTreasuryRevenueBuyback(buyback: Buyback): void {}
+
+export function updateTreasuryRevenueDeprecatedBuyback(buyback: DeprecatedBuyback): void {
+  log.debug('DeprecatedBuybackEvent, txid: {}, token: ', [buyback.id, buyback.token.toHexString()])
   let treasuryRevenue = loadOrCreateTreasuryRevenue(buyback.timestamp)
 
-  log.debug('BuybackToken, txid: {}', [buyback.token.toString()])
-  treasuryRevenue.buybackClamAmount = buyback.clamAmount
-  if (buyback.token == Address.fromString(QI_ERC20_CONTRACT)) {
-    treasuryRevenue.buybackMarketValue = getQiMarketValue(toDecimal(buyback.tokenAmount, 18))
-    log.debug('BuybackEvent using Qi, txid: {}', [buyback.id.toString()])
+  treasuryRevenue.buybackClamAmount = treasuryRevenue.buybackClamAmount.plus(buyback.clamAmount)
+  if (buyback.token.toHexString().toLowerCase() == QI_ERC20_CONTRACT.toLowerCase()) {
+    treasuryRevenue.buybackMarketValue = treasuryRevenue.buybackMarketValue.plus(
+      getQiMarketValue(toDecimal(buyback.tokenAmount, 18)),
+    )
+    log.debug('BuybackEvent using Qi, txid: {}', [buyback.id])
   }
-  if (buyback.token == Address.fromString(MATIC_ERC20_CONTRACT)) {
-    treasuryRevenue.buybackMarketValue = getwMATICMarketValue(toDecimal(buyback.tokenAmount, 18))
-    log.debug('BuybackEvent using Qi, txid: {}', [buyback.id.toString()])
+  if (buyback.token.toHexString().toLowerCase() == MATIC_ERC20_CONTRACT.toLowerCase()) {
+    treasuryRevenue.buybackMarketValue = treasuryRevenue.buybackMarketValue.plus(
+      getwMATICMarketValue(toDecimal(buyback.tokenAmount, 18)),
+    )
+    log.debug('BuybackEvent using Qi, txid: {}', [buyback.id])
   }
   //stablecoins (18 decimals)
   if (
-    buyback.token == Address.fromString(DAI_ERC20_CONTRACT) ||
-    buyback.token == Address.fromString(FRAX_ERC20_CONTRACT) ||
-    buyback.token == Address.fromString(MAI_ERC20_CONTRACT)
+    buyback.token.toHexString().toLowerCase() == DAI_ERC20_CONTRACT.toLowerCase() ||
+    buyback.token.toHexString().toLowerCase() == FRAX_ERC20_CONTRACT.toLowerCase() ||
+    buyback.token.toHexString().toLowerCase() == MAI_ERC20_CONTRACT.toLowerCase()
   ) {
-    treasuryRevenue.buybackMarketValue = toDecimal(buyback.tokenAmount, 18)
-    log.debug('BuybackEvent using Stablecoins, txid: {}', [buyback.id.toString()])
+    treasuryRevenue.buybackMarketValue = treasuryRevenue.buybackMarketValue.plus(toDecimal(buyback.tokenAmount, 18))
+    log.debug('BuybackEvent using Stablecoins, txid: {}', [buyback.id])
   }
 
   treasuryRevenue.save()
