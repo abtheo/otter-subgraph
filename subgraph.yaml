@@ -2,189 +2,189 @@ specVersion: 0.0.2
 schema:
   file: ./schema.graphql
 dataSources:
-  # - kind: ethereum/contract
-  #   name: StakedOtterClamERC20V2
-  #   network: matic
-  #   source:
-  #     address: '0xAAc144Dc08cE39Ed92182dd85ded60E5000C9e67'
-  #     abi: StakedOtterClamERC20V2
-  #     startBlock: 24088468 #21593527
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.5
-  #     language: wasm/assemblyscript
-  #     entities:
-  #       - Transaction
-  #       - ProtocolMetric
-  #       - Approval
-  #       - LogRebase
-  #       - LogStakingContractUpdated
-  #       - LogSupply
-  #       - Transfer
-  #     abis:
-  #       - name: StakedOtterClamERC20V2
-  #         file: ./abis/StakedOtterClamERC20V2.json
-  #       # -- ProtocolMetric --
-  #       - name: OtterClamERC20V2
-  #         file: ./abis/OtterClamERC20V2.json
-  #       - name: OtterBondStakeDepository
-  #         file: ./abis/OtterBondStakeDepository.json
-  #       - name: OtterStaking
-  #         file: ./abis/OtterStaking.json
-  #       - name: OtterStakingDistributor
-  #         file: './abis/OtterStakingDistributor.json'
-  #       - name: ClamCirculatingSupply
-  #         file: ./abis/ClamCirculatingSupply.json
-  #       - name: ERC20
-  #         file: ./abis/ERC20.json
-  #       - name: UniswapV2Pair
-  #         file: ./abis/UniswapV2Pair.json
-  #       - name: dQuick
-  #         file: ./abis/dQuick.json
-  #       - name: xTetuQi
-  #         file: ./abis/xTetuQi.json
-  #       - name: OtterQiDAOInvestment
-  #         file: ./abis/OtterQiDAOInvestment.json
-  #       - name: QiFarm
-  #         file: ./abis/QiFarm.json
-  #       - name: OtterQuickSwapInvestment
-  #         file: ./abis/OtterQuickSwapInvestment.json
-  #       - name: AggregatorV3InterfaceABI
-  #         file: ./abis/AggregatorV3InterfaceABI.json
-  #       - name: OtterLake
-  #         file: ./abis/OtterLake.json
-  #       - name: PearlNote
-  #         file: ./abis/PearlNote.json
-  #       - name: OtterPearlERC20
-  #         file: ./abis/OtterPearlERC20.json
-  #       - name: CurveMai3poolContract
-  #         file: ./abis/CurveMai3poolContract.json
-  #       # --------------------
-  #     eventHandlers:
-  #       - event: Approval(indexed address,indexed address,uint256)
-  #         handler: handleApproval
-  #       - event: LogRebase(indexed uint256,uint256,uint256)
-  #         handler: handleLogRebase
-  #       - event: LogStakingContractUpdated(address)
-  #         handler: handleLogStakingContractUpdated
-  #       - event: LogSupply(indexed uint256,uint256,uint256)
-  #         handler: handleLogSupply
-  #       - event: Transfer(indexed address,indexed address,uint256)
-  #         handler: handleTransfer
-  #     file: ./src/StakedOtterClamERC20V2.ts
+  - kind: ethereum/contract
+    name: StakedOtterClamERC20V2
+    network: matic
+    source:
+      address: '0xAAc144Dc08cE39Ed92182dd85ded60E5000C9e67'
+      abi: StakedOtterClamERC20V2
+      startBlock: 24088468 #21593527
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Transaction
+        - ProtocolMetric
+        - Approval
+        - LogRebase
+        - LogStakingContractUpdated
+        - LogSupply
+        - Transfer
+      abis:
+        - name: StakedOtterClamERC20V2
+          file: ./abis/StakedOtterClamERC20V2.json
+        # -- ProtocolMetric --
+        - name: OtterClamERC20V2
+          file: ./abis/OtterClamERC20V2.json
+        - name: OtterBondStakeDepository
+          file: ./abis/OtterBondStakeDepository.json
+        - name: OtterStaking
+          file: ./abis/OtterStaking.json
+        - name: OtterStakingDistributor
+          file: './abis/OtterStakingDistributor.json'
+        - name: ClamCirculatingSupply
+          file: ./abis/ClamCirculatingSupply.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: UniswapV2Pair
+          file: ./abis/UniswapV2Pair.json
+        - name: dQuick
+          file: ./abis/dQuick.json
+        - name: xTetuQi
+          file: ./abis/xTetuQi.json
+        - name: OtterQiDAOInvestment
+          file: ./abis/OtterQiDAOInvestment.json
+        - name: QiFarm
+          file: ./abis/QiFarm.json
+        - name: OtterQuickSwapInvestment
+          file: ./abis/OtterQuickSwapInvestment.json
+        - name: AggregatorV3InterfaceABI
+          file: ./abis/AggregatorV3InterfaceABI.json
+        - name: OtterLake
+          file: ./abis/OtterLake.json
+        - name: PearlNote
+          file: ./abis/PearlNote.json
+        - name: OtterPearlERC20
+          file: ./abis/OtterPearlERC20.json
+        - name: CurveMai3poolContract
+          file: ./abis/CurveMai3poolContract.json
+        # --------------------
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,uint256)
+          handler: handleApproval
+        - event: LogRebase(indexed uint256,uint256,uint256)
+          handler: handleLogRebase
+        - event: LogStakingContractUpdated(address)
+          handler: handleLogStakingContractUpdated
+        - event: LogSupply(indexed uint256,uint256,uint256)
+          handler: handleLogSupply
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+      file: ./src/StakedOtterClamERC20V2.ts
 
-  # - kind: ethereum/contract
-  #   name: OtterTreasury
-  #   network: matic
-  #   source:
-  #     address: '0x8ce47D56EAa1299d3e06FF3E04637449fFb01C9C'
-  #     abi: OtterTreasury
-  #     startBlock: 24088468 #21593527
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.5
-  #     language: wasm/assemblyscript
-  #     entities:
-  #       - Transaction
-  #       - ProtocolMetric
-  #       - ChangeActivated
-  #       - ChangeQueued
-  #       - CreateDebt
-  #       - Deposit
-  #       - RepayDebt
-  #       - ReservesAudited
-  #       - ReservesManaged
-  #       - ReservesUpdated
-  #       - RewardsMinted
-  #       - Withdrawal
-  #       - Transfer
-  #     abis:
-  #       - name: OtterTreasury
-  #         file: ./abis/OtterTreasury.json
-  #       # -- ProtocolMetric --
-  #       - name: StakedOtterClamERC20V2
-  #         file: ./abis/StakedOtterClamERC20V2.json
-  #       - name: OtterClamERC20V2
-  #         file: ./abis/OtterClamERC20V2.json
-  #       - name: OtterBondStakeDepository
-  #         file: ./abis/OtterBondStakeDepository.json
-  #       - name: OtterStaking
-  #         file: ./abis/OtterStaking.json
-  #       - name: OtterStakingDistributor
-  #         file: './abis/OtterStakingDistributor.json'
-  #       - name: ClamCirculatingSupply
-  #         file: ./abis/ClamCirculatingSupply.json
-  #       - name: ERC20
-  #         file: ./abis/ERC20.json
-  #       - name: UniswapV2Pair
-  #         file: ./abis/UniswapV2Pair.json
-  #       - name: dQuick
-  #         file: ./abis/dQuick.json
-  #       - name: xTetuQi
-  #         file: ./abis/xTetuQi.json
-  #       - name: OtterQiDAOInvestment
-  #         file: ./abis/OtterQiDAOInvestment.json
-  #       - name: QiFarm
-  #         file: ./abis/QiFarm.json
-  #       - name: OtterQuickSwapInvestment
-  #         file: ./abis/OtterQuickSwapInvestment.json
-  #       - name: AggregatorV3InterfaceABI
-  #         file: ./abis/AggregatorV3InterfaceABI.json
-  #       - name: OtterLake
-  #         file: ./abis/OtterLake.json
-  #       - name: PearlNote
-  #         file: ./abis/PearlNote.json
-  #       - name: OtterPearlERC20
-  #         file: ./abis/OtterPearlERC20.json
-  #       - name: CurveMai3poolContract
-  #         file: ./abis/CurveMai3poolContract.json
-  #       # --------------------
-  #     eventHandlers:
-  #       - event: ChangeActivated(indexed uint8,address,bool)
-  #         handler: handleChangeActivated
-  #       - event: ChangeQueued(indexed uint8,address)
-  #         handler: handleChangeQueued
-  #       - event: CreateDebt(indexed address,indexed address,uint256,uint256)
-  #         handler: handleCreateDebt
-  #       - event: Deposit(indexed address,uint256,uint256)
-  #         handler: handleDeposit
-  #       - event: RepayDebt(indexed address,indexed address,uint256,uint256)
-  #         handler: handleRepayDebt
-  #       - event: ReservesAudited(indexed uint256)
-  #         handler: handleReservesAudited
-  #       - event: ReservesManaged(indexed address,uint256)
-  #         handler: handleReservesManaged
-  #       - event: ReservesUpdated(indexed uint256)
-  #         handler: handleReservesUpdated
-  #       - event: RewardsMinted(indexed address,indexed address,uint256)
-  #         handler: handleRewardsMinted
-  #       - event: Withdrawal(indexed address,uint256,uint256)
-  #         handler: handleWithdrawal
-  #     file: ./src/OtterTreasury.ts
+  - kind: ethereum/contract
+    name: OtterTreasury
+    network: matic
+    source:
+      address: '0x8ce47D56EAa1299d3e06FF3E04637449fFb01C9C'
+      abi: OtterTreasury
+      startBlock: 24088468 #21593527
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Transaction
+        - ProtocolMetric
+        - ChangeActivated
+        - ChangeQueued
+        - CreateDebt
+        - Deposit
+        - RepayDebt
+        - ReservesAudited
+        - ReservesManaged
+        - ReservesUpdated
+        - RewardsMinted
+        - Withdrawal
+        - Transfer
+      abis:
+        - name: OtterTreasury
+          file: ./abis/OtterTreasury.json
+        # -- ProtocolMetric --
+        - name: StakedOtterClamERC20V2
+          file: ./abis/StakedOtterClamERC20V2.json
+        - name: OtterClamERC20V2
+          file: ./abis/OtterClamERC20V2.json
+        - name: OtterBondStakeDepository
+          file: ./abis/OtterBondStakeDepository.json
+        - name: OtterStaking
+          file: ./abis/OtterStaking.json
+        - name: OtterStakingDistributor
+          file: './abis/OtterStakingDistributor.json'
+        - name: ClamCirculatingSupply
+          file: ./abis/ClamCirculatingSupply.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: UniswapV2Pair
+          file: ./abis/UniswapV2Pair.json
+        - name: dQuick
+          file: ./abis/dQuick.json
+        - name: xTetuQi
+          file: ./abis/xTetuQi.json
+        - name: OtterQiDAOInvestment
+          file: ./abis/OtterQiDAOInvestment.json
+        - name: QiFarm
+          file: ./abis/QiFarm.json
+        - name: OtterQuickSwapInvestment
+          file: ./abis/OtterQuickSwapInvestment.json
+        - name: AggregatorV3InterfaceABI
+          file: ./abis/AggregatorV3InterfaceABI.json
+        - name: OtterLake
+          file: ./abis/OtterLake.json
+        - name: PearlNote
+          file: ./abis/PearlNote.json
+        - name: OtterPearlERC20
+          file: ./abis/OtterPearlERC20.json
+        - name: CurveMai3poolContract
+          file: ./abis/CurveMai3poolContract.json
+        # --------------------
+      eventHandlers:
+        - event: ChangeActivated(indexed uint8,address,bool)
+          handler: handleChangeActivated
+        - event: ChangeQueued(indexed uint8,address)
+          handler: handleChangeQueued
+        - event: CreateDebt(indexed address,indexed address,uint256,uint256)
+          handler: handleCreateDebt
+        - event: Deposit(indexed address,uint256,uint256)
+          handler: handleDeposit
+        - event: RepayDebt(indexed address,indexed address,uint256,uint256)
+          handler: handleRepayDebt
+        - event: ReservesAudited(indexed uint256)
+          handler: handleReservesAudited
+        - event: ReservesManaged(indexed address,uint256)
+          handler: handleReservesManaged
+        - event: ReservesUpdated(indexed uint256)
+          handler: handleReservesUpdated
+        - event: RewardsMinted(indexed address,indexed address,uint256)
+          handler: handleRewardsMinted
+        - event: Withdrawal(indexed address,uint256,uint256)
+          handler: handleWithdrawal
+      file: ./src/OtterTreasury.ts
 
-  # - kind: ethereum/contract
-  #   name: Otto
-  #   network: matic
-  #   source:
-  #     address: '0x6e8A9Cb6B1E73e9fCe3FD3c68b5af9728F708eB7'
-  #     abi: Otto
-  #     startBlock: 26102382
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.5
-  #     language: wasm/assemblyscript
-  #     entities:
-  #       - Otto
-  #     abis:
-  #       - name: Otto
-  #         file: ./abis/Otto.json
-  #       - name: OttoV2
-  #         file: ./abis/OttoV2.json
-  #       # --------------------
-  #     eventHandlers:
-  #       - event: Transfer(indexed address,indexed address,indexed uint256)
-  #         handler: handleTransfer
-  #     file: ./src/Otto.ts
+  - kind: ethereum/contract
+    name: Otto
+    network: matic
+    source:
+      address: '0x6e8A9Cb6B1E73e9fCe3FD3c68b5af9728F708eB7'
+      abi: Otto
+      startBlock: 26102382
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Otto
+      abis:
+        - name: Otto
+          file: ./abis/Otto.json
+        - name: OttoV2
+          file: ./abis/OttoV2.json
+        # --------------------
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: ./src/Otto.ts
 
   - kind: ethereum/contract
     name: OtterQiLocker

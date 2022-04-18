@@ -1,7 +1,7 @@
 import { toDecimal } from './Decimals'
 import { Address, BigDecimal, BigInt, log } from '@graphprotocol/graph-ts'
 import { dayFromTimestamp } from './Dates'
-import { TreasuryRevenue, Transaction, Harvest, Transfer, Buyback, DeprecatedBuyback } from '../../generated/schema'
+import { TreasuryRevenue, Transaction, Harvest, Transfer, Buyback } from '../../generated/schema'
 import { getQiMarketValue } from './ProtocolMetrics'
 import {
   QI_ERC20_CONTRACT,
@@ -54,9 +54,7 @@ export function updateTreasuryRevenueTransfer(transfer: Transfer): void {
   treasuryRevenue.save()
 }
 
-export function updateTreasuryRevenueBuyback(buyback: Buyback): void {}
-
-export function updateTreasuryRevenueDeprecatedBuyback(buyback: DeprecatedBuyback): void {
+export function updateTreasuryRevenueBuyback(buyback: Buyback): void {
   log.debug('DeprecatedBuybackEvent, txid: {}, token: ', [buyback.id, buyback.token.toHexString()])
   let treasuryRevenue = loadOrCreateTreasuryRevenue(buyback.timestamp)
 

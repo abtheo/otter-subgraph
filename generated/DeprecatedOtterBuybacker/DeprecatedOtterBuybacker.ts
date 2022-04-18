@@ -10,46 +10,6 @@ import {
   BigInt
 } from "@graphprotocol/graph-ts";
 
-export class AdminChanged extends ethereum.Event {
-  get params(): AdminChanged__Params {
-    return new AdminChanged__Params(this);
-  }
-}
-
-export class AdminChanged__Params {
-  _event: AdminChanged;
-
-  constructor(event: AdminChanged) {
-    this._event = event;
-  }
-
-  get previousAdmin(): Address {
-    return this._event.parameters[0].value.toAddress();
-  }
-
-  get newAdmin(): Address {
-    return this._event.parameters[1].value.toAddress();
-  }
-}
-
-export class BeaconUpgraded extends ethereum.Event {
-  get params(): BeaconUpgraded__Params {
-    return new BeaconUpgraded__Params(this);
-  }
-}
-
-export class BeaconUpgraded__Params {
-  _event: BeaconUpgraded;
-
-  constructor(event: BeaconUpgraded) {
-    this._event = event;
-  }
-
-  get beacon(): Address {
-    return this._event.parameters[0].value.toAddress();
-  }
-}
-
 export class Buyback extends ethereum.Event {
   get params(): Buyback__Params {
     return new Buyback__Params(this);
@@ -76,16 +36,38 @@ export class Buyback__Params {
   }
 }
 
-export class OwnershipTransferred extends ethereum.Event {
-  get params(): OwnershipTransferred__Params {
-    return new OwnershipTransferred__Params(this);
+export class OwnershipPulled extends ethereum.Event {
+  get params(): OwnershipPulled__Params {
+    return new OwnershipPulled__Params(this);
   }
 }
 
-export class OwnershipTransferred__Params {
-  _event: OwnershipTransferred;
+export class OwnershipPulled__Params {
+  _event: OwnershipPulled;
 
-  constructor(event: OwnershipTransferred) {
+  constructor(event: OwnershipPulled) {
+    this._event = event;
+  }
+
+  get previousOwner(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get newOwner(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+}
+
+export class OwnershipPushed extends ethereum.Event {
+  get params(): OwnershipPushed__Params {
+    return new OwnershipPushed__Params(this);
+  }
+}
+
+export class OwnershipPushed__Params {
+  _event: OwnershipPushed;
+
+  constructor(event: OwnershipPushed) {
     this._event = event;
   }
 
@@ -125,46 +107,6 @@ export class RemoveLiquidity__Params {
 
   get token1Amount(): BigInt {
     return this._event.parameters[3].value.toBigInt();
-  }
-}
-
-export class ToggleOperator extends ethereum.Event {
-  get params(): ToggleOperator__Params {
-    return new ToggleOperator__Params(this);
-  }
-}
-
-export class ToggleOperator__Params {
-  _event: ToggleOperator;
-
-  constructor(event: ToggleOperator) {
-    this._event = event;
-  }
-
-  get operator(): Address {
-    return this._event.parameters[0].value.toAddress();
-  }
-
-  get toggle(): boolean {
-    return this._event.parameters[1].value.toBoolean();
-  }
-}
-
-export class Upgraded extends ethereum.Event {
-  get params(): Upgraded__Params {
-    return new Upgraded__Params(this);
-  }
-}
-
-export class Upgraded__Params {
-  _event: Upgraded;
-
-  constructor(event: Upgraded) {
-    this._event = event;
-  }
-
-  get implementation(): Address {
-    return this._event.parameters[0].value.toAddress();
   }
 }
 
@@ -229,25 +171,6 @@ export class DeprecatedOtterBuybacker extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  operators(param0: Address): boolean {
-    let result = super.call("operators", "operators(address):(bool)", [
-      ethereum.Value.fromAddress(param0)
-    ]);
-
-    return result[0].toBoolean();
-  }
-
-  try_operators(param0: Address): ethereum.CallResult<boolean> {
-    let result = super.tryCall("operators", "operators(address):(bool)", [
-      ethereum.Value.fromAddress(param0)
-    ]);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBoolean());
-  }
-
   owner(): Address {
     let result = super.call("owner", "owner():(address)", []);
 
@@ -261,25 +184,6 @@ export class DeprecatedOtterBuybacker extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  proxiableUUID(): Bytes {
-    let result = super.call("proxiableUUID", "proxiableUUID():(bytes32)", []);
-
-    return result[0].toBytes();
-  }
-
-  try_proxiableUUID(): ethereum.CallResult<Bytes> {
-    let result = super.tryCall(
-      "proxiableUUID",
-      "proxiableUUID():(bytes32)",
-      []
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBytes());
   }
 
   router(): Address {
@@ -310,6 +214,48 @@ export class DeprecatedOtterBuybacker extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+}
+
+export class ConstructorCall extends ethereum.Call {
+  get inputs(): ConstructorCall__Inputs {
+    return new ConstructorCall__Inputs(this);
+  }
+
+  get outputs(): ConstructorCall__Outputs {
+    return new ConstructorCall__Outputs(this);
+  }
+}
+
+export class ConstructorCall__Inputs {
+  _call: ConstructorCall;
+
+  constructor(call: ConstructorCall) {
+    this._call = call;
+  }
+
+  get swapRouter_(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get treasury_(): Address {
+    return this._call.inputValues[1].value.toAddress();
+  }
+
+  get clam_(): Address {
+    return this._call.inputValues[2].value.toAddress();
+  }
+
+  get dao_(): Address {
+    return this._call.inputValues[3].value.toAddress();
+  }
+}
+
+export class ConstructorCall__Outputs {
+  _call: ConstructorCall;
+
+  constructor(call: ConstructorCall) {
+    this._call = call;
   }
 }
 
@@ -381,44 +327,58 @@ export class EmergencyWithdrawCall__Outputs {
   }
 }
 
-export class InitializeCall extends ethereum.Call {
-  get inputs(): InitializeCall__Inputs {
-    return new InitializeCall__Inputs(this);
+export class PullManagementCall extends ethereum.Call {
+  get inputs(): PullManagementCall__Inputs {
+    return new PullManagementCall__Inputs(this);
   }
 
-  get outputs(): InitializeCall__Outputs {
-    return new InitializeCall__Outputs(this);
+  get outputs(): PullManagementCall__Outputs {
+    return new PullManagementCall__Outputs(this);
   }
 }
 
-export class InitializeCall__Inputs {
-  _call: InitializeCall;
+export class PullManagementCall__Inputs {
+  _call: PullManagementCall;
 
-  constructor(call: InitializeCall) {
+  constructor(call: PullManagementCall) {
+    this._call = call;
+  }
+}
+
+export class PullManagementCall__Outputs {
+  _call: PullManagementCall;
+
+  constructor(call: PullManagementCall) {
+    this._call = call;
+  }
+}
+
+export class PushManagementCall extends ethereum.Call {
+  get inputs(): PushManagementCall__Inputs {
+    return new PushManagementCall__Inputs(this);
+  }
+
+  get outputs(): PushManagementCall__Outputs {
+    return new PushManagementCall__Outputs(this);
+  }
+}
+
+export class PushManagementCall__Inputs {
+  _call: PushManagementCall;
+
+  constructor(call: PushManagementCall) {
     this._call = call;
   }
 
-  get swapRouter_(): Address {
+  get newOwner_(): Address {
     return this._call.inputValues[0].value.toAddress();
-  }
-
-  get treasury_(): Address {
-    return this._call.inputValues[1].value.toAddress();
-  }
-
-  get clam_(): Address {
-    return this._call.inputValues[2].value.toAddress();
-  }
-
-  get dao_(): Address {
-    return this._call.inputValues[3].value.toAddress();
   }
 }
 
-export class InitializeCall__Outputs {
-  _call: InitializeCall;
+export class PushManagementCall__Outputs {
+  _call: PushManagementCall;
 
-  constructor(call: InitializeCall) {
+  constructor(call: PushManagementCall) {
     this._call = call;
   }
 }
@@ -469,182 +429,28 @@ export class RemoveLiquidityCall__Outputs {
   }
 }
 
-export class RenounceOwnershipCall extends ethereum.Call {
-  get inputs(): RenounceOwnershipCall__Inputs {
-    return new RenounceOwnershipCall__Inputs(this);
+export class RenounceManagementCall extends ethereum.Call {
+  get inputs(): RenounceManagementCall__Inputs {
+    return new RenounceManagementCall__Inputs(this);
   }
 
-  get outputs(): RenounceOwnershipCall__Outputs {
-    return new RenounceOwnershipCall__Outputs(this);
+  get outputs(): RenounceManagementCall__Outputs {
+    return new RenounceManagementCall__Outputs(this);
   }
 }
 
-export class RenounceOwnershipCall__Inputs {
-  _call: RenounceOwnershipCall;
+export class RenounceManagementCall__Inputs {
+  _call: RenounceManagementCall;
 
-  constructor(call: RenounceOwnershipCall) {
+  constructor(call: RenounceManagementCall) {
     this._call = call;
   }
 }
 
-export class RenounceOwnershipCall__Outputs {
-  _call: RenounceOwnershipCall;
+export class RenounceManagementCall__Outputs {
+  _call: RenounceManagementCall;
 
-  constructor(call: RenounceOwnershipCall) {
-    this._call = call;
-  }
-}
-
-export class SetRouterCall extends ethereum.Call {
-  get inputs(): SetRouterCall__Inputs {
-    return new SetRouterCall__Inputs(this);
-  }
-
-  get outputs(): SetRouterCall__Outputs {
-    return new SetRouterCall__Outputs(this);
-  }
-}
-
-export class SetRouterCall__Inputs {
-  _call: SetRouterCall;
-
-  constructor(call: SetRouterCall) {
-    this._call = call;
-  }
-
-  get swapRouter_(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-}
-
-export class SetRouterCall__Outputs {
-  _call: SetRouterCall;
-
-  constructor(call: SetRouterCall) {
-    this._call = call;
-  }
-}
-
-export class ToggleOperatorCall extends ethereum.Call {
-  get inputs(): ToggleOperatorCall__Inputs {
-    return new ToggleOperatorCall__Inputs(this);
-  }
-
-  get outputs(): ToggleOperatorCall__Outputs {
-    return new ToggleOperatorCall__Outputs(this);
-  }
-}
-
-export class ToggleOperatorCall__Inputs {
-  _call: ToggleOperatorCall;
-
-  constructor(call: ToggleOperatorCall) {
-    this._call = call;
-  }
-
-  get operator_(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-}
-
-export class ToggleOperatorCall__Outputs {
-  _call: ToggleOperatorCall;
-
-  constructor(call: ToggleOperatorCall) {
-    this._call = call;
-  }
-}
-
-export class TransferOwnershipCall extends ethereum.Call {
-  get inputs(): TransferOwnershipCall__Inputs {
-    return new TransferOwnershipCall__Inputs(this);
-  }
-
-  get outputs(): TransferOwnershipCall__Outputs {
-    return new TransferOwnershipCall__Outputs(this);
-  }
-}
-
-export class TransferOwnershipCall__Inputs {
-  _call: TransferOwnershipCall;
-
-  constructor(call: TransferOwnershipCall) {
-    this._call = call;
-  }
-
-  get newOwner(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-}
-
-export class TransferOwnershipCall__Outputs {
-  _call: TransferOwnershipCall;
-
-  constructor(call: TransferOwnershipCall) {
-    this._call = call;
-  }
-}
-
-export class UpgradeToCall extends ethereum.Call {
-  get inputs(): UpgradeToCall__Inputs {
-    return new UpgradeToCall__Inputs(this);
-  }
-
-  get outputs(): UpgradeToCall__Outputs {
-    return new UpgradeToCall__Outputs(this);
-  }
-}
-
-export class UpgradeToCall__Inputs {
-  _call: UpgradeToCall;
-
-  constructor(call: UpgradeToCall) {
-    this._call = call;
-  }
-
-  get newImplementation(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-}
-
-export class UpgradeToCall__Outputs {
-  _call: UpgradeToCall;
-
-  constructor(call: UpgradeToCall) {
-    this._call = call;
-  }
-}
-
-export class UpgradeToAndCallCall extends ethereum.Call {
-  get inputs(): UpgradeToAndCallCall__Inputs {
-    return new UpgradeToAndCallCall__Inputs(this);
-  }
-
-  get outputs(): UpgradeToAndCallCall__Outputs {
-    return new UpgradeToAndCallCall__Outputs(this);
-  }
-}
-
-export class UpgradeToAndCallCall__Inputs {
-  _call: UpgradeToAndCallCall;
-
-  constructor(call: UpgradeToAndCallCall) {
-    this._call = call;
-  }
-
-  get newImplementation(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get data(): Bytes {
-    return this._call.inputValues[1].value.toBytes();
-  }
-}
-
-export class UpgradeToAndCallCall__Outputs {
-  _call: UpgradeToAndCallCall;
-
-  constructor(call: UpgradeToAndCallCall) {
+  constructor(call: RenounceManagementCall) {
     this._call = call;
   }
 }

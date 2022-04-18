@@ -1,29 +1,35 @@
 [
     {
+        "anonymous": false,
         "inputs": [
             {
+                "indexed": false,
                 "internalType": "address",
-                "name": "swapRouter_",
+                "name": "previousAdmin",
                 "type": "address"
             },
             {
+                "indexed": false,
                 "internalType": "address",
-                "name": "treasury_",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "clam_",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "dao_",
+                "name": "newAdmin",
                 "type": "address"
             }
         ],
-        "stateMutability": "nonpayable",
-        "type": "constructor"
+        "name": "AdminChanged",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "beacon",
+                "type": "address"
+            }
+        ],
+        "name": "BeaconUpgraded",
+        "type": "event"
     },
     {
         "anonymous": false,
@@ -66,26 +72,7 @@
                 "type": "address"
             }
         ],
-        "name": "OwnershipPulled",
-        "type": "event"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "previousOwner",
-                "type": "address"
-            },
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "newOwner",
-                "type": "address"
-            }
-        ],
-        "name": "OwnershipPushed",
+        "name": "OwnershipTransferred",
         "type": "event"
     },
     {
@@ -117,6 +104,38 @@
             }
         ],
         "name": "RemoveLiquidity",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "operator",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "bool",
+                "name": "toggle",
+                "type": "bool"
+            }
+        ],
+        "name": "ToggleOperator",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "implementation",
+                "type": "address"
+            }
+        ],
+        "name": "Upgraded",
         "type": "event"
     },
     {
@@ -185,6 +204,34 @@
         "inputs": [
             {
                 "internalType": "address",
+                "name": "swapRouter_",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "treasury_",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "clam_",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "dao_",
+                "type": "address"
+            }
+        ],
+        "name": "initialize",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
                 "name": "source_",
                 "type": "address"
             },
@@ -206,6 +253,25 @@
         "type": "function"
     },
     {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "name": "operators",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
         "inputs": [],
         "name": "owner",
         "outputs": [
@@ -220,22 +286,15 @@
     },
     {
         "inputs": [],
-        "name": "pullManagement",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
+        "name": "proxiableUUID",
+        "outputs": [
             {
-                "internalType": "address",
-                "name": "newOwner_",
-                "type": "address"
+                "internalType": "bytes32",
+                "name": "",
+                "type": "bytes32"
             }
         ],
-        "name": "pushManagement",
-        "outputs": [],
-        "stateMutability": "nonpayable",
+        "stateMutability": "view",
         "type": "function"
     },
     {
@@ -273,7 +332,7 @@
     },
     {
         "inputs": [],
-        "name": "renounceManagement",
+        "name": "renounceOwnership",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -292,6 +351,45 @@
         "type": "function"
     },
     {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "swapRouter_",
+                "type": "address"
+            }
+        ],
+        "name": "setRouter",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "operator_",
+                "type": "address"
+            }
+        ],
+        "name": "toggleOperator",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "newOwner",
+                "type": "address"
+            }
+        ],
+        "name": "transferOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
         "inputs": [],
         "name": "treasury",
         "outputs": [
@@ -302,6 +400,37 @@
             }
         ],
         "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "newImplementation",
+                "type": "address"
+            }
+        ],
+        "name": "upgradeTo",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "newImplementation",
+                "type": "address"
+            },
+            {
+                "internalType": "bytes",
+                "name": "data",
+                "type": "bytes"
+            }
+        ],
+        "name": "upgradeToAndCall",
+        "outputs": [],
+        "stateMutability": "payable",
         "type": "function"
     }
 ]
