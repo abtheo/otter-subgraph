@@ -243,7 +243,6 @@ dataSources:
           handler: handleQiDaoInvestmentHarvestTransfer
       file: ./src/Qi.ts
 
-  
   - kind: ethereum/contract
     name: DeprecatedOtterBuybacker
     network: matic

@@ -2346,6 +2346,11 @@ export class TreasuryRevenue extends Entity {
     );
     this.set("buybackClamAmount", Value.fromBigInt(BigInt.zero()));
     this.set("buybackMarketValue", Value.fromBigDecimal(BigDecimal.zero()));
+    this.set(
+      "totalRevenueMarketValue",
+      Value.fromBigDecimal(BigDecimal.zero())
+    );
+    this.set("totalRevenueClamAmount", Value.fromBigInt(BigInt.zero()));
   }
 
   save(): void {
@@ -2435,5 +2440,23 @@ export class TreasuryRevenue extends Entity {
 
   set buybackMarketValue(value: BigDecimal) {
     this.set("buybackMarketValue", Value.fromBigDecimal(value));
+  }
+
+  get totalRevenueMarketValue(): BigDecimal {
+    let value = this.get("totalRevenueMarketValue");
+    return value!.toBigDecimal();
+  }
+
+  set totalRevenueMarketValue(value: BigDecimal) {
+    this.set("totalRevenueMarketValue", Value.fromBigDecimal(value));
+  }
+
+  get totalRevenueClamAmount(): BigInt {
+    let value = this.get("totalRevenueClamAmount");
+    return value!.toBigInt();
+  }
+
+  set totalRevenueClamAmount(value: BigInt) {
+    this.set("totalRevenueClamAmount", Value.fromBigInt(value));
   }
 }

@@ -10,7 +10,7 @@ import {
   FRAX_ERC20_CONTRACT,
   MATIC_ERC20_CONTRACT,
 } from './Constants'
-import { getwMaticUsdRate } from './Price'
+import { getwMaticUsdRate, getClamUsdRate } from './Price'
 
 export function loadOrCreateTreasuryRevenue(timestamp: BigInt): TreasuryRevenue {
   let ts = dayFromTimestamp(timestamp)
@@ -23,6 +23,8 @@ export function loadOrCreateTreasuryRevenue(timestamp: BigInt): TreasuryRevenue 
     treasuryRevenue.qiLockerHarvestMarketValue = BigDecimal.fromString('0')
     treasuryRevenue.qiDaoInvestmentHarvestAmount = BigInt.fromString('0')
     treasuryRevenue.qiDaoInvestmentHarvestMarketValue = BigDecimal.fromString('0')
+    treasuryRevenue.totalRevenueMarketValue = BigDecimal.fromString('0')
+    treasuryRevenue.totalRevenueClamAmount = BigInt.fromString('0')
     treasuryRevenue.buybackClamAmount = BigInt.fromString('0')
     treasuryRevenue.buybackMarketValue = BigDecimal.fromString('0')
 
@@ -32,24 +34,53 @@ export function loadOrCreateTreasuryRevenue(timestamp: BigInt): TreasuryRevenue 
 }
 
 export function updateTreasuryRevenueHarvest(harvest: Harvest): void {
-  log.debug('HarvestEvent, txid: {}', [harvest.id])
   let treasuryRevenue = loadOrCreateTreasuryRevenue(harvest.timestamp)
+  let qiMarketValue = getQiMarketValue(toDecimal(harvest.amount, 18))
+  let clamAmount = BigInt.fromString(
+    getClamUsdRate()
+      .div(qiMarketValue)
+      .times(BigDecimal.fromString('1e9'))
+      .truncate(0)
+      .toString(),
+  )
+  log.debug('HarvestEvent, txid: {}, qiMarketValue {}, clamAmount {}', [
+    harvest.id,
+    qiMarketValue.toString(),
+    clamAmount.toString(),
+  ])
+
   //Aggregate over day with +=
   treasuryRevenue.qiLockerHarvestAmount = treasuryRevenue.qiLockerHarvestAmount.plus(harvest.amount)
-  treasuryRevenue.qiLockerHarvestMarketValue = treasuryRevenue.qiLockerHarvestMarketValue.plus(
-    getQiMarketValue(toDecimal(harvest.amount, 18)),
-  )
+  treasuryRevenue.qiLockerHarvestMarketValue = treasuryRevenue.qiLockerHarvestMarketValue.plus(qiMarketValue)
 
+  treasuryRevenue.totalRevenueMarketValue = treasuryRevenue.totalRevenueMarketValue.plus(qiMarketValue)
+  treasuryRevenue.totalRevenueClamAmount = treasuryRevenue.totalRevenueClamAmount.plus(clamAmount)
   treasuryRevenue.save()
 }
 export function updateTreasuryRevenueTransfer(transfer: Transfer): void {
-  log.debug('TransferEvent, txid: {}', [transfer.id])
   let treasuryRevenue = loadOrCreateTreasuryRevenue(transfer.timestamp)
+
+  let qiMarketValue = getQiMarketValue(toDecimal(transfer.value, 18))
+  let clamAmount = BigInt.fromString(
+    getClamUsdRate()
+      .div(qiMarketValue)
+      .times(BigDecimal.fromString('1e9'))
+      .truncate(0)
+      .toString(),
+  )
+  log.debug('TransferEvent, txid: {}, qiMarketValue {}, clamAmount: {}', [
+    transfer.id,
+    qiMarketValue.toString(),
+    clamAmount.toString(),
+  ])
 
   treasuryRevenue.qiDaoInvestmentHarvestAmount = treasuryRevenue.qiDaoInvestmentHarvestAmount.plus(transfer.value)
   treasuryRevenue.qiDaoInvestmentHarvestMarketValue = treasuryRevenue.qiDaoInvestmentHarvestMarketValue.plus(
-    getQiMarketValue(toDecimal(transfer.value, 18)),
+    qiMarketValue,
   )
+
+  treasuryRevenue.totalRevenueMarketValue = treasuryRevenue.totalRevenueMarketValue.plus(qiMarketValue)
+  treasuryRevenue.totalRevenueClamAmount = treasuryRevenue.totalRevenueClamAmount.plus(clamAmount)
 
   treasuryRevenue.save()
 }

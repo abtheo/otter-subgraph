@@ -245,4 +245,6 @@ type TreasuryRevenue @entity {
   qiDaoInvestmentHarvestMarketValue: BigDecimal!
   buybackClamAmount: BigInt!
   buybackMarketValue: BigDecimal!
+  totalRevenueMarketValue: BigDecimal!
+  totalRevenueClamAmount: BigInt!
 }
