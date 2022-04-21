@@ -37,8 +37,8 @@ export function updateTreasuryRevenueHarvest(harvest: Harvest): void {
   let treasuryRevenue = loadOrCreateTreasuryRevenue(harvest.timestamp)
   let qiMarketValue = getQiMarketValue(toDecimal(harvest.amount, 18))
   let clamAmount = BigInt.fromString(
-    getClamUsdRate()
-      .div(qiMarketValue)
+    qiMarketValue
+      .div(getClamUsdRate())
       .times(BigDecimal.fromString('1e9'))
       .truncate(0)
       .toString(),
@@ -62,8 +62,8 @@ export function updateTreasuryRevenueTransfer(transfer: Transfer): void {
 
   let qiMarketValue = getQiMarketValue(toDecimal(transfer.value, 18))
   let clamAmount = BigInt.fromString(
-    getClamUsdRate()
-      .div(qiMarketValue)
+    qiMarketValue
+      .div(getClamUsdRate())
       .times(BigDecimal.fromString('1e9'))
       .truncate(0)
       .toString(),
