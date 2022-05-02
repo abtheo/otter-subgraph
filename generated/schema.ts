@@ -2467,6 +2467,7 @@ export class APY extends Entity {
     this.set("id", Value.fromString(id));
 
     this.set("timestamp", Value.fromBigInt(BigInt.zero()));
+    this.set("rebaseReward", Value.fromBigDecimal(BigDecimal.zero()));
     this.set("apy", Value.fromBigDecimal(BigDecimal.zero()));
   }
 
@@ -2503,6 +2504,15 @@ export class APY extends Entity {
 
   set timestamp(value: BigInt) {
     this.set("timestamp", Value.fromBigInt(value));
+  }
+
+  get rebaseReward(): BigDecimal {
+    let value = this.get("rebaseReward");
+    return value!.toBigDecimal();
+  }
+
+  set rebaseReward(value: BigDecimal) {
+    this.set("rebaseReward", Value.fromBigDecimal(value));
   }
 
   get apy(): BigDecimal {

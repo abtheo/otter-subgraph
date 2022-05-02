@@ -2,6 +2,7 @@ import { BigDecimal, BigInt } from '@graphprotocol/graph-ts'
 
 export const DEFAULT_DECIMALS = 18
 
+//Note: Only works for integer exponents!
 export function pow(base: BigDecimal, exponent: number): BigDecimal {
   let result = base
 

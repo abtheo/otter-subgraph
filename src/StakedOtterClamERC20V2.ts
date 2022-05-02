@@ -20,6 +20,8 @@ import { log } from '@graphprotocol/graph-ts'
 import { loadOrCreateTransaction } from './utils/Transactions'
 import { updateProtocolMetrics } from './utils/ProtocolMetrics'
 
+const ONE = BigDecimal.fromString('1')
+
 // export function handleApproval(event: ApprovalEvent): void {
 //   let transaction = loadOrCreateTransaction(event.transaction, event.block)
 //   let entity = new Approval(transaction.id)
@@ -128,19 +130,27 @@ export function calculateApy(timestamp: BigInt): void {
         .toBigDecimal(),
     )
 
-  //d = price / backing
-  let delta_price = lastMetrics.clamPrice.div(lastMetrics.treasuryMarketValue.div(lastMetrics.sClamCirculatingSupply))
-  //p=3 for now
+  //d = (price / backing) + 1
+  let delta_price = lastMetrics.clamPrice
+    .div(lastMetrics.treasuryMarketValue.div(lastMetrics.sClamCirculatingSupply))
+    .plus(ONE)
 
-  //(d^p * R) / sCLAM
-  let apy = delta_price
+  //rr = (d^p * R) / sCLAM
+  //p=3 for now
+  let rebase_reward = delta_price
     .times(delta_price)
     .times(delta_price)
     .times(rebase_revenue)
     .div(lastMetrics.sClamCirculatingSupply)
 
+  // ((1+rr)^(3*365) - 1) * 100% = APY%
+  let apy = BigDecimal.fromString(Math.pow(Number.parseFloat(rebase_reward.plus(ONE).toString()), 365 * 3).toString())
+    .minus(ONE)
+    .times(BigDecimal.fromString('100'))
+    .truncate(3)
+
   log.debug(
-    'Calculating APY @ {}, lastMetrics timestamp: {}, num revenue days: {}, avg rebase revenue CLAMs: {}, clam price: {}, price delta: {}, sCLAM supply: {}, APY: {}',
+    'Calculating APY @ {}, lastMetrics timestamp: {}, num revenue days: {}, avg rebase revenue CLAMs: {}, clam price: {}, price delta: {}, sCLAM supply: {}, rebase reward: {}, APY: {}%',
     [
       timestamp.toString(),
       lastMetrics.timestamp.toString(),
@@ -149,11 +159,13 @@ export function calculateApy(timestamp: BigInt): void {
       lastMetrics.clamPrice.toString(),
       delta_price.toString(),
       lastMetrics.sClamCirculatingSupply.toString(),
+      rebase_reward.toString(),
       apy.toString(),
     ],
   )
   let apyEntity = new APY(timestamp.toString())
   apyEntity.timestamp = timestamp
   apyEntity.apy = apy
+  apyEntity.rebaseReward = rebase_reward
   apyEntity.save()
 }

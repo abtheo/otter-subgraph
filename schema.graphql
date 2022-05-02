@@ -252,5 +252,6 @@ type TreasuryRevenue @entity {
 type APY @entity {
   id: ID!
   timestamp: BigInt!
+  rebaseReward: BigDecimal!
   apy: BigDecimal!
 }
