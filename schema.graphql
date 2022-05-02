@@ -248,3 +248,9 @@ type TreasuryRevenue @entity {
   totalRevenueMarketValue: BigDecimal!
   totalRevenueClamAmount: BigInt!
 }
+
+type APY @entity {
+  id: ID!
+  timestamp: BigInt!
+  apy: BigDecimal!
+}
