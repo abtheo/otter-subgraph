@@ -73,6 +73,7 @@ import {
   getQiUsdRate,
   getwMaticUsdRate,
 } from './Price'
+import { loadOrCreateTotalBurnedClamSingleton } from '../OtterClamERC20V2'
 
 export function loadOrCreateProtocolMetric(timestamp: BigInt): ProtocolMetric {
   let dayTimestamp = dayFromTimestamp(timestamp)
@@ -114,6 +115,7 @@ export function loadOrCreateProtocolMetric(timestamp: BigInt): ProtocolMetric {
     protocolMetric.treasuryClamMaiPOL = BigDecimal.fromString('0')
     protocolMetric.treasuryClamFraxPOL = BigDecimal.fromString('0')
     protocolMetric.treasuryClamWmaticPOL = BigDecimal.fromString('0')
+    protocolMetric.totalBurnedClam = BigDecimal.fromString('0')
 
     protocolMetric.save()
   }
@@ -771,6 +773,8 @@ export function updateProtocolMetrics(transaction: Transaction): void {
   pm.runway70k = runways[6]
   pm.runway100k = runways[7]
   pm.runwayCurrent = runways[8]
+
+  pm.totalBurnedClam = loadOrCreateTotalBurnedClamSingleton().burnedClam
 
   pm.save()
 }

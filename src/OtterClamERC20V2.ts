@@ -5,7 +5,7 @@ import { log } from '@graphprotocol/graph-ts'
 import { loadOrCreateTransaction } from './utils/Transactions'
 
 export function handleTransfer(event: TransferEvent): void {
-  if (event.params.from.toHexString() == '0x0000000000000000000000000000000000000000') {
+  if (event.params.to.toHexString() == '0x0000000000000000000000000000000000000000') {
     let transaction = loadOrCreateTransaction(event.transaction, event.block)
     let entity = new Transfer(transaction.id)
     entity.from = event.params.from

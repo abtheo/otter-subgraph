@@ -200,6 +200,7 @@ type ProtocolMetric @entity {
   treasuryClamMaiPOL: BigDecimal!
   treasuryClamFraxPOL: BigDecimal!
   treasuryClamWmaticPOL: BigDecimal!
+  totalBurnedClam: BigDecimal!
 }
 
 type TotalBurnedClam @entity {
