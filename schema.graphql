@@ -201,3 +201,8 @@ type ProtocolMetric @entity {
   treasuryClamFraxPOL: BigDecimal!
   treasuryClamWmaticPOL: BigDecimal!
 }
+
+type TotalBurnedClam @entity {
+  id: ID!
+  burnedClam: BigDecimal!
+}
