@@ -116,6 +116,7 @@ export function loadOrCreateProtocolMetric(timestamp: BigInt): ProtocolMetric {
     protocolMetric.treasuryClamFraxPOL = BigDecimal.fromString('0')
     protocolMetric.treasuryClamWmaticPOL = BigDecimal.fromString('0')
     protocolMetric.totalBurnedClam = BigDecimal.fromString('0')
+    protocolMetric.totalBurnedClamMarketValue = BigDecimal.fromString('0')
 
     protocolMetric.save()
   }
@@ -775,7 +776,9 @@ export function updateProtocolMetrics(transaction: Transaction): void {
   pm.runwayCurrent = runways[8]
 
   //Total burned CLAM
-  pm.totalBurnedClam = loadOrCreateTotalBurnedClamSingleton().burnedClam
+  let burns = loadOrCreateTotalBurnedClamSingleton()
+  pm.totalBurnedClam = burns.burnedClam
+  pm.totalBurnedClamMarketValue = burns.burnedValueUsd
 
   pm.save()
 }

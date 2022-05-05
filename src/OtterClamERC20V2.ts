@@ -3,6 +3,7 @@ import { Transfer as TransferEvent } from '../generated/StakedOtterClamERC20V2/S
 import { Transfer, TotalBurnedClam } from '../generated/schema'
 import { log } from '@graphprotocol/graph-ts'
 import { loadOrCreateTransaction } from './utils/Transactions'
+import { getClamUsdRate } from './utils/Price'
 
 export function handleTransfer(event: TransferEvent): void {
   if (event.params.to.toHexString() == '0x0000000000000000000000000000000000000000') {
@@ -21,6 +22,7 @@ export function handleTransfer(event: TransferEvent): void {
     //Cumulative total for burned CLAM
     let total = loadOrCreateTotalBurnedClamSingleton()
     total.burnedClam = total.burnedClam.plus(burnedClam)
+    total.burnedValueUsd = total.burnedValueUsd.plus(getClamUsdRate().times(burnedClam))
     total.save()
   }
 }
@@ -30,6 +32,7 @@ export function loadOrCreateTotalBurnedClamSingleton(): TotalBurnedClam {
   if (total == null) {
     total = new TotalBurnedClam('1')
     total.burnedClam = BigDecimal.fromString('0')
+    total.burnedValueUsd = BigDecimal.fromString('0')
   }
   return total
 }

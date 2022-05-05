@@ -1552,6 +1552,10 @@ export class ProtocolMetric extends Entity {
     this.set("treasuryClamFraxPOL", Value.fromBigDecimal(BigDecimal.zero()));
     this.set("treasuryClamWmaticPOL", Value.fromBigDecimal(BigDecimal.zero()));
     this.set("totalBurnedClam", Value.fromBigDecimal(BigDecimal.zero()));
+    this.set(
+      "totalBurnedClamMarketValue",
+      Value.fromBigDecimal(BigDecimal.zero())
+    );
   }
 
   save(): void {
@@ -2074,6 +2078,15 @@ export class ProtocolMetric extends Entity {
   set totalBurnedClam(value: BigDecimal) {
     this.set("totalBurnedClam", Value.fromBigDecimal(value));
   }
+
+  get totalBurnedClamMarketValue(): BigDecimal {
+    let value = this.get("totalBurnedClamMarketValue");
+    return value!.toBigDecimal();
+  }
+
+  set totalBurnedClamMarketValue(value: BigDecimal) {
+    this.set("totalBurnedClamMarketValue", Value.fromBigDecimal(value));
+  }
 }
 
 export class TotalBurnedClam extends Entity {
@@ -2082,6 +2095,7 @@ export class TotalBurnedClam extends Entity {
     this.set("id", Value.fromString(id));
 
     this.set("burnedClam", Value.fromBigDecimal(BigDecimal.zero()));
+    this.set("burnedValueUsd", Value.fromBigDecimal(BigDecimal.zero()));
   }
 
   save(): void {
@@ -2117,5 +2131,14 @@ export class TotalBurnedClam extends Entity {
 
   set burnedClam(value: BigDecimal) {
     this.set("burnedClam", Value.fromBigDecimal(value));
+  }
+
+  get burnedValueUsd(): BigDecimal {
+    let value = this.get("burnedValueUsd");
+    return value!.toBigDecimal();
+  }
+
+  set burnedValueUsd(value: BigDecimal) {
+    this.set("burnedValueUsd", Value.fromBigDecimal(value));
   }
 }

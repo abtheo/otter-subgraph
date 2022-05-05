@@ -88,6 +88,8 @@ dataSources:
       abis:
         - name: OtterClamERC20V2
           file: ./abis/OtterClamERC20V2.json
+        - name: UniswapV2Pair
+          file: ./abis/UniswapV2Pair.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
