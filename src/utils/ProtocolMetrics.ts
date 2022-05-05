@@ -774,6 +774,7 @@ export function updateProtocolMetrics(transaction: Transaction): void {
   pm.runway100k = runways[7]
   pm.runwayCurrent = runways[8]
 
+  //Total burned CLAM
   pm.totalBurnedClam = loadOrCreateTotalBurnedClamSingleton().burnedClam
 
   pm.save()
