@@ -97,6 +97,7 @@ dataSources:
         - ReservesUpdated
         - RewardsMinted
         - Withdrawal
+        - Transfer
       abis:
         - name: OtterTreasury
           file: ./abis/OtterTreasury.json
@@ -184,3 +185,115 @@ dataSources:
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
       file: ./src/Otto.ts
+
+  - kind: ethereum/contract
+    name: OtterQiLocker
+    network: matic
+    source:
+      address: '0x69f6c4Fa150F9F0b3037612CF8FadDAeDbd46Bb8'
+      abi: OtterQiLocker
+      startBlock: 25352622
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Transaction
+        - Harvest
+        - HarvestStaking
+        - TreasuryRevenue
+      abis:
+        - name: OtterQiLocker
+          file: ./abis/OtterQiLocker.json
+        - name: UniswapV2Pair
+          file: ./abis/UniswapV2Pair.json
+        - name: AggregatorV3InterfaceABI
+          file: ./abis/AggregatorV3InterfaceABI.json
+      eventHandlers:
+        - event: Harvest(uint256)
+          handler: handleHarvest
+        - event: HarvestStaking(indexed uint256,uint256)
+          handler: handleHarvestStaking
+      file: ./src/OtterQiLocker.ts
+
+  - kind: ethereum/contract
+    name: Qi
+    network: matic
+    source:
+      address: '0x580A84C73811E1839F75d86d75d88cCa0c241fF4'
+      abi: Qi
+      startBlock: 24088468
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Transaction
+        - Transfer
+        - TreasuryRevenue
+      abis:
+        - name: Qi
+          file: ./abis/Qi.json
+        - name: UniswapV2Pair
+          file: ./abis/UniswapV2Pair.json
+        - name: AggregatorV3InterfaceABI
+          file: ./abis/AggregatorV3InterfaceABI.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleQiDaoInvestmentHarvestTransfer
+      file: ./src/Qi.ts
+
+  - kind: ethereum/contract
+    name: DeprecatedOtterBuybacker
+    network: matic
+    source:
+      address: '0x017adb26b2ea4dbd9f1372710748e1388fa3082a'
+      abi: DeprecatedOtterBuybacker
+      startBlock: 24954592
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Transaction
+        - Buyback
+        - TreasuryRevenue
+      abis:
+        - name: DeprecatedOtterBuybacker
+          file: ./abis/DeprecatedOtterBuybacker.json
+        - name: UniswapV2Pair
+          file: ./abis/UniswapV2Pair.json
+        - name: AggregatorV3InterfaceABI
+          file: ./abis/AggregatorV3InterfaceABI.json
+      eventHandlers:
+        - event: Buyback(indexed address,uint256,uint256)
+          handler: handleDeprecatedBuyback
+      file: ./src/OtterBuybacker.ts
+
+  - kind: ethereum/contract
+    name: OtterBuybacker
+    network: matic
+    source:
+      address: '0x155d21b6d7eb5dd1035a9ae57201c20ff1ea90d2'
+      abi: OtterBuybacker
+      startBlock: 24954592
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Transaction
+        - Buyback
+        - TreasuryRevenue
+      abis:
+        - name: OtterBuybacker
+          file: ./abis/OtterBuybacker.json
+        - name: UniswapV2Pair
+          file: ./abis/UniswapV2Pair.json
+        - name: AggregatorV3InterfaceABI
+          file: ./abis/AggregatorV3InterfaceABI.json
+      eventHandlers:
+        - event: Buyback(indexed address,uint256,uint256)
+          handler: handleBuyback
+      file: ./src/OtterBuybacker.ts
+  

@@ -1465,6 +1465,90 @@ export class Withdrawal extends Entity {
   }
 }
 
+export class Buyback extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+
+    this.set("transaction", Value.fromString(""));
+    this.set("timestamp", Value.fromBigInt(BigInt.zero()));
+    this.set("token", Value.fromBytes(Bytes.empty()));
+    this.set("tokenAmount", Value.fromBigInt(BigInt.zero()));
+    this.set("clamAmount", Value.fromBigInt(BigInt.zero()));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save Buyback entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        "Cannot save Buyback entity with non-string ID. " +
+          'Considering using .toHex() to convert the "id" to a string.'
+      );
+      store.set("Buyback", id.toString(), this);
+    }
+  }
+
+  static load(id: string): Buyback | null {
+    return changetype<Buyback | null>(store.get("Buyback", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get transaction(): string {
+    let value = this.get("transaction");
+    return value!.toString();
+  }
+
+  set transaction(value: string) {
+    this.set("transaction", Value.fromString(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    return value!.toBigInt();
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+
+  get token(): Bytes {
+    let value = this.get("token");
+    return value!.toBytes();
+  }
+
+  set token(value: Bytes) {
+    this.set("token", Value.fromBytes(value));
+  }
+
+  get tokenAmount(): BigInt {
+    let value = this.get("tokenAmount");
+    return value!.toBigInt();
+  }
+
+  set tokenAmount(value: BigInt) {
+    this.set("tokenAmount", Value.fromBigInt(value));
+  }
+
+  get clamAmount(): BigInt {
+    let value = this.get("clamAmount");
+    return value!.toBigInt();
+  }
+
+  set clamAmount(value: BigInt) {
+    this.set("clamAmount", Value.fromBigInt(value));
+  }
+}
+
 export class ProtocolMetric extends Entity {
   constructor(id: string) {
     super();
@@ -2177,5 +2261,202 @@ export class Otto extends Entity {
 
   set updateAt(value: BigInt) {
     this.set("updateAt", Value.fromBigInt(value));
+  }
+}
+
+export class Harvest extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+
+    this.set("transaction", Value.fromString(""));
+    this.set("timestamp", Value.fromBigInt(BigInt.zero()));
+    this.set("amount", Value.fromBigInt(BigInt.zero()));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save Harvest entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        "Cannot save Harvest entity with non-string ID. " +
+          'Considering using .toHex() to convert the "id" to a string.'
+      );
+      store.set("Harvest", id.toString(), this);
+    }
+  }
+
+  static load(id: string): Harvest | null {
+    return changetype<Harvest | null>(store.get("Harvest", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get transaction(): string {
+    let value = this.get("transaction");
+    return value!.toString();
+  }
+
+  set transaction(value: string) {
+    this.set("transaction", Value.fromString(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    return value!.toBigInt();
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+
+  get amount(): BigInt {
+    let value = this.get("amount");
+    return value!.toBigInt();
+  }
+
+  set amount(value: BigInt) {
+    this.set("amount", Value.fromBigInt(value));
+  }
+}
+
+export class TreasuryRevenue extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+
+    this.set("timestamp", Value.fromBigInt(BigInt.zero()));
+    this.set("qiLockerHarvestAmount", Value.fromBigInt(BigInt.zero()));
+    this.set(
+      "qiLockerHarvestMarketValue",
+      Value.fromBigDecimal(BigDecimal.zero())
+    );
+    this.set("qiDaoInvestmentHarvestAmount", Value.fromBigInt(BigInt.zero()));
+    this.set(
+      "qiDaoInvestmentHarvestMarketValue",
+      Value.fromBigDecimal(BigDecimal.zero())
+    );
+    this.set("buybackClamAmount", Value.fromBigInt(BigInt.zero()));
+    this.set("buybackMarketValue", Value.fromBigDecimal(BigDecimal.zero()));
+    this.set(
+      "totalRevenueMarketValue",
+      Value.fromBigDecimal(BigDecimal.zero())
+    );
+    this.set("totalRevenueClamAmount", Value.fromBigInt(BigInt.zero()));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save TreasuryRevenue entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        "Cannot save TreasuryRevenue entity with non-string ID. " +
+          'Considering using .toHex() to convert the "id" to a string.'
+      );
+      store.set("TreasuryRevenue", id.toString(), this);
+    }
+  }
+
+  static load(id: string): TreasuryRevenue | null {
+    return changetype<TreasuryRevenue | null>(store.get("TreasuryRevenue", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    return value!.toBigInt();
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+
+  get qiLockerHarvestAmount(): BigInt {
+    let value = this.get("qiLockerHarvestAmount");
+    return value!.toBigInt();
+  }
+
+  set qiLockerHarvestAmount(value: BigInt) {
+    this.set("qiLockerHarvestAmount", Value.fromBigInt(value));
+  }
+
+  get qiLockerHarvestMarketValue(): BigDecimal {
+    let value = this.get("qiLockerHarvestMarketValue");
+    return value!.toBigDecimal();
+  }
+
+  set qiLockerHarvestMarketValue(value: BigDecimal) {
+    this.set("qiLockerHarvestMarketValue", Value.fromBigDecimal(value));
+  }
+
+  get qiDaoInvestmentHarvestAmount(): BigInt {
+    let value = this.get("qiDaoInvestmentHarvestAmount");
+    return value!.toBigInt();
+  }
+
+  set qiDaoInvestmentHarvestAmount(value: BigInt) {
+    this.set("qiDaoInvestmentHarvestAmount", Value.fromBigInt(value));
+  }
+
+  get qiDaoInvestmentHarvestMarketValue(): BigDecimal {
+    let value = this.get("qiDaoInvestmentHarvestMarketValue");
+    return value!.toBigDecimal();
+  }
+
+  set qiDaoInvestmentHarvestMarketValue(value: BigDecimal) {
+    this.set("qiDaoInvestmentHarvestMarketValue", Value.fromBigDecimal(value));
+  }
+
+  get buybackClamAmount(): BigInt {
+    let value = this.get("buybackClamAmount");
+    return value!.toBigInt();
+  }
+
+  set buybackClamAmount(value: BigInt) {
+    this.set("buybackClamAmount", Value.fromBigInt(value));
+  }
+
+  get buybackMarketValue(): BigDecimal {
+    let value = this.get("buybackMarketValue");
+    return value!.toBigDecimal();
+  }
+
+  set buybackMarketValue(value: BigDecimal) {
+    this.set("buybackMarketValue", Value.fromBigDecimal(value));
+  }
+
+  get totalRevenueMarketValue(): BigDecimal {
+    let value = this.get("totalRevenueMarketValue");
+    return value!.toBigDecimal();
+  }
+
+  set totalRevenueMarketValue(value: BigDecimal) {
+    this.set("totalRevenueMarketValue", Value.fromBigDecimal(value));
+  }
+
+  get totalRevenueClamAmount(): BigInt {
+    let value = this.get("totalRevenueClamAmount");
+    return value!.toBigInt();
+  }
+
+  set totalRevenueClamAmount(value: BigInt) {
+    this.set("totalRevenueClamAmount", Value.fromBigInt(value));
   }
 }
