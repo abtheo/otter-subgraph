@@ -153,6 +153,15 @@ type Withdrawal @entity {
   value: BigInt! # uint256
 }
 
+type Buyback @entity {
+  id: ID!
+  transaction: Transaction!
+  timestamp: BigInt!
+  token: Bytes! # address
+  tokenAmount: BigInt! # uint256
+  clamAmount: BigInt! # uint256
+}
+
 type ProtocolMetric @entity {
   id: ID!
   timestamp: BigInt!
@@ -208,4 +217,24 @@ type TotalBurnedClam @entity {
   id: ID!
   burnedClam: BigDecimal!
   burnedValueUsd: BigDecimal!
+}
+
+type Harvest @entity {
+  id: ID!
+  transaction: Transaction!
+  timestamp: BigInt!
+  amount: BigInt!
+}
+
+type TreasuryRevenue @entity {
+  id: ID!
+  timestamp: BigInt!
+  qiLockerHarvestAmount: BigInt!
+  qiLockerHarvestMarketValue: BigDecimal!
+  qiDaoInvestmentHarvestAmount: BigInt!
+  qiDaoInvestmentHarvestMarketValue: BigDecimal!
+  buybackClamAmount: BigInt!
+  buybackMarketValue: BigDecimal!
+  totalRevenueMarketValue: BigDecimal!
+  totalRevenueClamAmount: BigInt!
 }
